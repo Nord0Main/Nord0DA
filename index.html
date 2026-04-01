@@ -35,10 +35,10 @@
             position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(212, 175, 55, 0.2);
         }
 
-        .logo { font-size: 1.8rem; color: var(--gold-accent); text-decoration: none; }
+        .logo { font-size: 1.8rem; color: var(--gold-accent); text-decoration: none; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
         .nav-links { display: flex; align-items: center; gap: 25px; }
         .nav-links a { color: var(--text-main); text-decoration: none; transition: 0.3s; }
-        .nav-links a:hover { color: var(--magic-glow); }
+        .nav-links a:hover { color: var(--magic-glow); text-shadow: 0 0 8px var(--magic-glow); }
 
         section { padding: 80px 10%; }
         header { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 20px; }
@@ -82,8 +82,10 @@
             font-weight: 600; cursor: pointer; border: none; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
             text-align: center;
         }
-        .btn-primary { background: var(--gold-accent); color: #000; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); }
+        .btn-primary { background: linear-gradient(135deg, var(--gold-accent), #b8962e); color: #111; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6); color: #000; }
         .btn-outline { border: 2px solid var(--gold-accent); color: var(--gold-accent); background: transparent; }
+        .btn-outline:hover { background: rgba(212, 175, 55, 0.1); }
         .btn-sync { background: var(--magic-glow); color: #fff; }
 
         input {
@@ -92,6 +94,8 @@
         }
 
         .faq-item { margin-bottom: 20px; background: var(--bg-card); padding: 25px; border-radius: 12px; border-left: 4px solid var(--gold-accent); text-align: left; }
+        
+        .login-temp { text-align: center; max-width: 400px; margin: 0 auto; }
 
         #tos-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -122,8 +126,8 @@
 </nav>
 
 <header id="hero-section">
-    <h1 style="font-size: 4.5rem; color: var(--gold-accent);">Step Into the Unknown</h1>
-    <p style="font-size: 1.3rem; max-width: 650px; color: var(--text-dim);">The next generation of AI-driven text adventures. Your choices conjure the world itself.</p>
+    <h1 style="font-size: 4.5rem; color: var(--gold-accent); text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.4);">Step Into the Unknown</h1>
+    <p style="font-size: 1.3rem; max-width: 650px; color: var(--text-dim); font-weight: 600;">The next generation of AI-driven text adventures. Your choices conjure the world itself.</p>
     <a href="#downloads" class="btn btn-primary" style="margin-top: 30px;">Begin Your Journey</a>
 </header>
 
@@ -212,12 +216,17 @@
 
 <section id="auth" style="background: rgba(8, 11, 18, 0.6);">
     <h2>Join the Guild</h2>
-    <div class="card" style="max-width: 400px; margin: 0 auto;">
+    <div class="card login-temp">
         <p id="auth-message" style="color: var(--gold-accent); margin-bottom: 20px;">Sign in to bridge your realms.</p>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <button class="btn btn-outline" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Sign in with Google</button>
-            <button class="btn btn-outline" onclick="loginWithGithub()"><i class="fab fa-github"></i> Sign in with GitHub</button>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+            <button class="btn btn-outline" style="width: 100%; border-color: #4285F4; color: #fff; background: rgba(0,0,0,0.5);" onclick="loginWithGoogle()">
+                <i class="fab fa-google" style="color: #4285F4;"></i> Sign in with Google
+            </button>
+            <button class="btn btn-outline" style="width: 100%; border-color: #555; color: #fff; background: rgba(0,0,0,0.5);" onclick="loginWithGithub()">
+                <i class="fab fa-github"></i> Sign in with GitHub
+            </button>
         </div>
+        <p style="font-size: 0.85rem; color: var(--text-dim); margin-top:20px;">Database connected via Supabase.</p>
     </div>
 </section>
 
@@ -241,16 +250,84 @@
     <p>&copy; 2026 Nord0Labs. All rights reserved across the multiverse.</p>
 </footer>
 
+<script>
+    const canvas = document.getElementById('magic-dust');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const colors = ['rgba(6, 182, 212, ', 'rgba(212, 175, 55, ']; 
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2.5 + 0.5;
+            this.speedX = Math.random() * 0.8 - 0.4;
+            this.speedY = Math.random() * -1 - 0.2;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.opacity = Math.random() * 0.5 + 0.1;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            
+            if (this.y < 0) {
+                this.y = canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            if (this.x > canvas.width || this.x < 0) {
+                this.speedX = -this.speedX;
+            }
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color + this.opacity + ')';
+            ctx.fill();
+        }
+    }
+
+    function init() {
+        particlesArray = [];
+        let numParticles = window.innerWidth < 768 ? 50 : 120;
+        for (let i = 0; i < numParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        init();
+    });
+
+    init();
+    animate();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcHdjaG9xeGd0Y3pva2Ruc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjM0MzEsImV4cCI6MjA5MDU5OTQzMX0.AziHO9vPdRsCTrkkuSO8Rzu17QNOjPntvOdv8K_SXso';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let activeCharacter = null;
+    const authMessage = document.getElementById('auth-message');
 
-    supabase.auth.onAuthStateChange((event, session) => {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
             currentUser = session.user;
             showProfile();
@@ -266,16 +343,14 @@
         document.getElementById('auth').style.display = 'none';
         document.getElementById('profile-section').style.display = 'block';
         
-        // Handle metadata gracefully
         const metadata = currentUser.user_metadata || {};
         const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
         document.getElementById('display-username').innerText = displayName;
 
-        // Change Nav Button to Logout
         const navBtn = document.getElementById('auth-nav-btn');
         navBtn.innerText = "Logout";
-        navBtn.removeAttribute('href'); // Remove anchor link
-        navBtn.onclick = async () => { await supabase.auth.signOut(); };
+        navBtn.removeAttribute('href'); 
+        navBtn.onclick = async () => { await supabaseClient.auth.signOut(); };
     }
 
     function hideProfile() {
@@ -283,16 +358,15 @@
         document.getElementById('auth').style.display = 'block';
         document.getElementById('profile-section').style.display = 'none';
 
-        // Reset Nav Button to Login
         const navBtn = document.getElementById('auth-nav-btn');
         navBtn.innerText = "Login";
-        navBtn.setAttribute('href', '#auth'); // Restore anchor link
-        navBtn.onclick = null; // Let the anchor handle it
+        navBtn.setAttribute('href', '#auth'); 
+        navBtn.onclick = null; 
     }
 
     async function syncCharacters() {
         if (!currentUser) return;
-        const { data, error } = await supabase.from('characters').select('*').eq('user_id', currentUser.id);
+        const { data, error } = await supabaseClient.from('characters').select('*').eq('user_id', currentUser.id);
         const list = document.getElementById('char-list');
         list.innerHTML = "";
 
@@ -343,42 +417,39 @@
     function closeTOS() { document.getElementById('tos-modal').style.display = 'none'; }
 
     async function acceptTOS() {
-        const { error } = await supabase.from('characters').update({ is_market_eligible: true }).eq('id', activeCharacter.id);
+        const { error } = await supabaseClient.from('characters').update({ is_market_eligible: true }).eq('id', activeCharacter.id);
         if(!error) {
             closeTOS();
             selectCharacter({...activeCharacter, is_market_eligible: true});
         }
     }
 
+    // RESTORED ORIGINAL AUTH FUNCTIONS
     async function loginWithGithub() {
-        await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' } });
+        authMessage.innerText = "Summoning GitHub...";
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'github',
+            options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' }
+        });
+        
+        if (error) {
+            authMessage.innerText = "Error: " + error.message;
+            authMessage.style.color = "#f96854";
+        }
     }
 
     async function loginWithGoogle() {
-        await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' } });
-    }
-
-    // Particle Background
-    const canvas = document.getElementById('magic-dust');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    let particlesArray = [];
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2;
-            this.speedY = Math.random() * -0.5 - 0.1;
-            this.opacity = Math.random() * 0.4;
+        authMessage.innerText = "Summoning Google...";
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' }
+        });
+        
+        if (error) {
+            authMessage.innerText = "Error: " + error.message;
+            authMessage.style.color = "#f96854";
         }
-        update() { this.y += this.speedY; if (this.y < 0) this.y = canvas.height; }
-        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`; ctx.fill(); }
     }
-    function initParticles() { particlesArray = []; for (let i = 0; i < 80; i++) particlesArray.push(new Particle()); }
-    function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particlesArray.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-    initParticles(); animate();
-    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); });
 </script>
 </body>
 </html>
