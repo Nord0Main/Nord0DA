@@ -40,18 +40,21 @@
         .nav-links a { color: var(--text-main); text-decoration: none; transition: 0.3s; }
         .nav-links a:hover { color: var(--magic-glow); }
 
-        /* HERO & PROFILE VISIBILITY */
-        #hero-section { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 100px 20px; }
-        #profile-section { display: none; padding: 60px 10%; }
+        /* SECTIONS */
+        section { padding: 80px 10%; }
+        header { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 20px; }
+        
+        #hero-section { display: flex; }
+        #profile-section { display: none; } /* Hidden until login */
 
         /* PROFILE UI */
         .profile-header {
             display: flex; align-items: center; gap: 30px; background: var(--bg-card);
             padding: 40px; border-radius: 20px; border: 1px solid var(--gold-accent);
-            margin-bottom: 40px; position: relative;
+            margin-bottom: 40px; position: relative; text-align: left;
         }
 
-        .profile-pic-container { position: relative; width: 120px; height: 120px; }
+        .profile-pic-container { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
         .profile-pic {
             width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--gold-accent);
             object-fit: cover; background: #000; display: flex; align-items: center; justify-content: center;
@@ -61,36 +64,51 @@
             color: #000; font-weight: bold; padding: 4px 10px; border-radius: 10px; font-size: 0.9rem;
         }
 
-        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
         .char-card {
             background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; cursor: pointer;
             border: 1px solid transparent; transition: 0.3s; text-align: center;
         }
-        .char-card:hover { border-color: var(--magic-glow); transform: scale(1.02); }
+        .char-card:hover { border-color: var(--magic-glow); transform: translateY(-5px); }
         .char-card.active { border-color: var(--gold-accent); background: rgba(212, 175, 55, 0.1); }
+
+        /* CARDS & GRIDS */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .card { 
+            background: var(--bg-card); padding: 40px 30px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: 0.4s; text-align: center; position: relative;
+        }
+        .card:hover { transform: translateY(-10px); border-color: var(--gold-accent); }
 
         /* BUTTONS */
         .btn {
-            display: inline-block; padding: 12px 28px; border-radius: 50px; text-decoration: none;
-            font-weight: 600; cursor: pointer; border: none; transition: 0.3s; font-size: 0.9rem;
+            display: inline-block; padding: 14px 32px; border-radius: 50px; text-decoration: none;
+            font-weight: 600; cursor: pointer; border: none; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
-        .btn-primary { background: var(--gold-accent); color: #000; }
+        .btn-primary { background: var(--gold-accent); color: #000; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); }
         .btn-outline { border: 2px solid var(--gold-accent); color: var(--gold-accent); background: transparent; }
         .btn-sync { background: var(--magic-glow); color: #fff; }
 
         input {
             background: rgba(0,0,0,0.3); border: 1px solid rgba(212, 175, 55, 0.3);
-            color: #fff; padding: 10px; border-radius: 8px; margin-right: 10px;
+            color: #fff; padding: 12px; border-radius: 8px; margin-right: 10px; font-family: 'Quicksand';
         }
+
+        /* FAQ */
+        .faq-item { margin-bottom: 20px; background: var(--bg-card); padding: 25px; border-radius: 12px; border-left: 4px solid var(--gold-accent); text-align: left; }
 
         /* MODAL */
         #tos-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;
         }
-        .modal-content {
-            background: var(--bg-twilight); padding: 40px; border-radius: 20px;
-            max-width: 500px; border: 2px solid var(--gold-accent); text-align: center;
+        .modal-content { background: var(--bg-twilight); padding: 40px; border-radius: 20px; max-width: 500px; border: 2px solid var(--gold-accent); text-align: center; }
+
+        @media (max-width: 768px) {
+            nav { flex-direction: column; padding: 1rem; gap: 15px; }
+            header h1 { font-size: 2.8rem; }
+            section { padding: 50px 5%; }
+            .profile-header { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -100,16 +118,17 @@
 
 <nav>
     <a href="#" class="logo">NORD0DA</a>
-    <div class="nav-links" id="nav-links">
+    <div class="nav-links">
         <a href="#adventures">Adventures</a>
         <a href="#downloads">Downloads</a>
-        <button class="btn btn-outline" id="auth-btn" onclick="scrollToAuth()">Login</button>
+        <a href="#faq">FAQ</a>
+        <button class="btn btn-outline" id="auth-btn" style="padding: 8px 20px;" onclick="scrollToAuth()">Login</button>
     </div>
 </nav>
 
 <header id="hero-section">
-    <h1 id="main-title">Step Into the Unknown</h1>
-    <p>The next generation of AI-driven text adventures. Your choices conjure the world itself.</p>
+    <h1 style="font-size: 4.5rem; color: var(--gold-accent);">Step Into the Unknown</h1>
+    <p style="font-size: 1.3rem; max-width: 650px; color: var(--text-dim);">The next generation of AI-driven text adventures. Your choices conjure the world itself.</p>
     <a href="#downloads" class="btn btn-primary" style="margin-top: 30px;">Begin Your Journey</a>
 </header>
 
@@ -120,30 +139,89 @@
             <div class="level-badge" id="active-char-level">Lv. 0</div>
         </div>
         <div style="flex-grow: 1;">
-            <h2 id="display-username" style="margin: 0; text-align: left;">New Adventurer</h2>
-            <div style="margin-top: 10px;">
-                <input type="text" id="username-input" placeholder="Set Public Name...">
-                <button class="btn btn-primary" onclick="updateUsername()">Update Name</button>
+            <h2 id="display-username" style="margin: 0;">Adventurer</h2>
+            <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+                <input type="text" id="username-input" placeholder="Update Public Name...">
+                <button class="btn btn-primary" style="padding: 10px 20px;" onclick="updateUsername()">Update</button>
             </div>
         </div>
         <button class="btn btn-sync" onclick="syncCharacters()"><i class="fas fa-sync"></i> Sync Saves</button>
     </div>
 
     <div id="character-management">
-        <h3>Your Character Vault</h3>
-        <p style="color: var(--text-dim);">Select a character to represent you in the realms.</p>
+        <h2 style="text-align: left; font-size: 2rem;">Your Character Vault</h2>
         <div class="char-grid" id="char-list">
-            <p>No characters found. Click 'Sync' to bridge your local saves.</p>
+            <p>No characters synced. Start a game in the local engine first!</p>
         </div>
     </div>
 
     <div id="market-status" style="margin-top: 40px; display: none;">
-        <div class="profile-header" style="border-color: var(--magic-glow);">
+        <div class="profile-header" style="border-color: var(--magic-glow); background: rgba(6, 182, 212, 0.05);">
             <div style="flex-grow: 1;">
-                <h3>Marketplace Eligibility</h3>
-                <p id="eligibility-text">This character is currently restricted to local loot only.</p>
+                <h3 style="margin: 0; color: var(--magic-glow);">Marketplace Eligibility</h3>
+                <p id="eligibility-text" style="margin: 5px 0 0 0;">This character is currently restricted to local loot only.</p>
             </div>
             <button class="btn btn-primary" id="market-btn" onclick="openTOS()">Enable Market</button>
+        </div>
+    </div>
+</section>
+
+<section id="adventures">
+    <h2>Current Adventures</h2>
+    <div class="grid">
+        <div class="card">
+            <i class="fas fa-dragon fa-3x" style="color:var(--gold-accent); margin-bottom:20px;"></i>
+            <h3>High Fantasy</h3>
+            <p>Magic, dragons, and ancient ruins. Uncover secrets in a living world.</p>
+            <span style="color:var(--magic-glow); font-weight: bold;">✦ Active Module ✦</span>
+        </div>
+        <div class="card" style="opacity: 0.6;">
+            <i class="fas fa-rocket fa-3x" style="margin-bottom:20px;"></i>
+            <h3>Sci-Fi Noir</h3>
+            <p>Cybernetics and neon-soaked mysteries in a distant future.</p>
+            <span>Coming Soon</span>
+        </div>
+    </div>
+</section>
+
+<section id="downloads" style="background: rgba(8, 11, 18, 0.6);">
+    <h2>Enter the Archive</h2>
+    <div style="text-align: center;">
+        <p style="color: var(--text-dim); margin-bottom: 30px;">Current Incantation: <b style="color: var(--gold-accent);">v0.1.1-alpha</b></p>
+        <div class="grid" style="max-width: 800px; margin: 0 auto;">
+            <div class="card">
+                <h3>Windows</h3>
+                <a href="https://github.com/Nord0Main/Nord0DA/releases/latest/download/Nord0DA-Alpha.zip" download class="btn btn-primary">Download .zip</a>
+            </div>
+            <div class="card">
+                <h3>Linux / Mac</h3>
+                <a href="https://github.com/Nord0Main/Nord0DA/releases/latest/download/Nord0DA-Alpha.zip" download class="btn btn-primary">Download .zip</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="faq">
+    <h2>Lore & F.A.Q.</h2>
+    <div style="max-width: 700px; margin: 0 auto;">
+        <div class="faq-item">
+            <h3>How does the Game Master AI work?</h3>
+            <p>Nord0DA uses custom-tuned LLMs to weave context-aware responses, ensuring no two dungeon runs are ever the same.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Can I adventure offline?</h3>
+            <p>Yes. The Nord0 engine runs completely locally. Once downloaded, no internet connection is required for gameplay.</p>
+        </div>
+    </div>
+</section>
+
+<section id="auth" style="background: rgba(8, 11, 18, 0.6);">
+    <h2>Join the Guild</h2>
+    <div class="card" style="max-width: 400px; margin: 0 auto;">
+        <p id="auth-message" style="color: var(--gold-accent); margin-bottom: 20px;">Sign in to bridge your realms.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button class="btn btn-outline" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Sign in with Google</button>
+            <button class="btn btn-outline" onclick="loginWithGithub()"><i class="fab fa-github"></i> Sign in with GitHub</button>
         </div>
     </div>
 </section>
@@ -151,42 +229,39 @@
 <div id="tos-modal">
     <div class="modal-content">
         <h3>Marketplace Covenant</h3>
-        <p style="text-align: left; font-size: 0.9rem;">
+        <p style="text-align: left; font-size: 0.9rem; line-height: 1.4;">
             1. Characters must be validated by the Odin Protocol.<br>
             2. <b>Hardcore characters</b> may never use the Market.<br>
             3. All legendary items are 1-of-1 and tracked globally.<br>
             4. You agree to the soul-binding terms of Nord0Labs.
         </p>
-        <button class="btn btn-primary" onclick="acceptTOS()">I Accept the Covenant</button>
-        <button class="btn btn-outline" onclick="closeTOS()" style="margin-left: 10px;">Decline</button>
+        <div style="margin-top: 25px;">
+            <button class="btn btn-primary" onclick="acceptTOS()">I Accept</button>
+            <button class="btn btn-outline" onclick="closeTOS()" style="margin-left: 10px;">Decline</button>
+        </div>
     </div>
 </div>
 
-<section id="auth" style="background: rgba(8, 11, 18, 0.6);">
-    <h2>Join the Guild</h2>
-    <div class="card login-temp">
-        <p id="auth-message" style="color: var(--gold-accent);">Login to save your progress.</p>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <button class="btn btn-outline" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Sign in with Google</button>
-            <button class="btn btn-outline" onclick="loginWithGithub()"><i class="fab fa-github"></i> Sign in with GitHub</button>
-        </div>
-    </div>
-</section>
+<footer>
+    <p>&copy; 2026 Nord0Labs. All rights reserved across the multiverse.</p>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // INITIALIZE SUPABASE
     const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_KEY_HERE';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcHdjaG9xeGd0Y3pva2Ruc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjM0MzEsImV4cCI6MjA5MDU5OTQzMX0.AziHO9vPdRsCTrkkuSO8Rzu17QNOjPntvOdv8K_SXso';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let activeCharacter = null;
 
-    // AUTH LISTENER
+    // AUTH OBSERVER
     supabase.auth.onAuthStateChange((event, session) => {
         if (session) {
             currentUser = session.user;
             showProfile();
+            syncCharacters();
         } else {
             currentUser = null;
             hideProfile();
@@ -197,7 +272,7 @@
         document.getElementById('hero-section').style.display = 'none';
         document.getElementById('auth').style.display = 'none';
         document.getElementById('profile-section').style.display = 'block';
-        document.getElementById('display-username').innerText = currentUser.email.split('@')[0];
+        document.getElementById('display-username').innerText = currentUser.user_metadata.full_name || currentUser.email.split('@')[0];
         document.getElementById('auth-btn').innerText = "Logout";
         document.getElementById('auth-btn').onclick = () => supabase.auth.signOut();
     }
@@ -220,15 +295,15 @@
                 const card = document.createElement('div');
                 card.className = `char-card ${activeCharacter?.id === char.id ? 'active' : ''}`;
                 card.innerHTML = `
-                    <i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-shield-alt'} fa-2x" style="color:${char.is_hardcore ? 'var(--danger)' : 'var(--gold-accent)'}"></i>
-                    <h4>${char.name}</h4>
-                    <p>Level ${char.level} ${char.is_hardcore ? '(HC)' : ''}</p>
+                    <i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-user-shield'} fa-2x" style="color:${char.is_hardcore ? 'var(--danger)' : 'var(--gold-accent)'}; margin-bottom:10px;"></i>
+                    <h4 style="margin:5px 0;">${char.name}</h4>
+                    <p style="font-size:0.8rem; margin:0;">Level ${char.level} ${char.is_hardcore ? '(Hardcore)' : ''}</p>
                 `;
                 card.onclick = () => selectCharacter(char);
                 list.appendChild(card);
             });
         } else {
-            list.innerHTML = "<p>No characters synced. Start a game in the local engine first!</p>";
+            list.innerHTML = "<p style='grid-column: 1/-1;'>No characters found. Ensure your local engine is synced!</p>";
         }
     }
 
@@ -236,24 +311,83 @@
         activeCharacter = char;
         document.getElementById('active-char-pic').innerHTML = `<i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-user-shield'} fa-3x"></i>`;
         document.getElementById('active-char-level').innerText = `Lv. ${char.level}`;
-        document.getElementById('market-status').style.display = char.is_hardcore ? 'none' : 'block';
-        syncCharacters(); // Refresh highlight
+        
+        const marketBox = document.getElementById('market-status');
+        const eligibilityText = document.getElementById('eligibility-text');
+        const marketBtn = document.getElementById('market-btn');
+
+        if (char.is_hardcore) {
+            marketBox.style.display = 'none';
+        } else {
+            marketBox.style.display = 'block';
+            if (char.is_market_eligible) {
+                eligibilityText.innerText = "This character is verified for Global Trading.";
+                eligibilityText.style.color = "var(--magic-glow)";
+                marketBtn.style.display = 'none';
+            } else {
+                eligibilityText.innerText = "This character is currently restricted to local loot only.";
+                eligibilityText.style.color = "var(--text-dim)";
+                marketBtn.style.display = 'block';
+            }
+        }
+        syncCharacters();
     }
 
     function openTOS() { document.getElementById('tos-modal').style.display = 'flex'; }
     function closeTOS() { document.getElementById('tos-modal').style.display = 'none'; }
 
     async function acceptTOS() {
-        // Here we update Supabase to make the character market eligible
         const { error } = await supabase.from('characters').update({ is_market_eligible: true }).eq('id', activeCharacter.id);
         if(!error) {
-            alert("The Covenant is sealed. This character is now Market Eligible.");
             closeTOS();
-            selectCharacter(activeCharacter);
+            selectCharacter({...activeCharacter, is_market_eligible: true});
         }
     }
 
+    async function loginWithGithub() {
+        await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' } });
+    }
+
+    async function loginWithGoogle() {
+        await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' } });
+    }
+
     function scrollToAuth() { document.getElementById('auth').scrollIntoView({ behavior: 'smooth' }); }
+
+    // Particle Background
+    const canvas = document.getElementById('magic-dust');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particlesArray = [];
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2;
+            this.speedY = Math.random() * -1 - 0.2;
+            this.opacity = Math.random() * 0.5;
+        }
+        update() {
+            this.y += this.speedY;
+            if (this.y < 0) this.y = canvas.height;
+        }
+        draw() {
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`; ctx.fill();
+        }
+    }
+    function initParticles() {
+        particlesArray = [];
+        for (let i = 0; i < 100; i++) particlesArray.push(new Particle());
+    }
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particlesArray.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    initParticles(); animate();
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); });
 </script>
 </body>
 </html>
