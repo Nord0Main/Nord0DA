@@ -54,7 +54,7 @@
             top: 0;
             z-index: 100;
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            flex-wrap: wrap; /* Helps with mobile */
+            flex-wrap: wrap;
         }
 
         .logo { 
@@ -356,10 +356,18 @@
     <h2>Join the Guild</h2>
     <div class="card login-temp">
         <p>Login or Register to save your progress across realms.</p>
-        <input type="text" placeholder="Adventurer Name">
-        <input type="password" placeholder="Secret Passphrase">
-        <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="alert('The Guild doors are currently being reinforced. Account system coming soon!')">Unlock</button>
-        <p style="font-size: 0.85rem; color: var(--text-dim); margin-top:20px;">Database integration currently in progress.</p>
+        
+        <input type="email" id="email-input" placeholder="Email Address (Arcane Missive)">
+        <input type="password" id="password-input" placeholder="Secret Passphrase">
+        
+        <p id="auth-message" style="color: var(--gold-accent); font-size: 0.9rem; min-height: 20px; margin: 5px 0;"></p>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="loginUser()">Login</button>
+            <button class="btn btn-outline" style="flex: 1; padding: 14px 0;" onclick="registerUser()">Register</button>
+        </div>
+        
+        <p style="font-size: 0.85rem; color: var(--text-dim); margin-top:20px;">Database connected via Supabase.</p>
     </div>
 </section>
 
@@ -383,16 +391,15 @@
     canvas.height = window.innerHeight;
 
     let particlesArray = [];
-    // Magic dust colors: Arcane Blue & Antique Gold
     const colors = ['rgba(6, 182, 212, ', 'rgba(212, 175, 55, ']; 
 
     class Particle {
         constructor() {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2.5 + 0.5; // Dust particle sizes
-            this.speedX = Math.random() * 0.8 - 0.4; // Drift left/right
-            this.speedY = Math.random() * -1 - 0.2; // Float upwards
+            this.size = Math.random() * 2.5 + 0.5;
+            this.speedX = Math.random() * 0.8 - 0.4;
+            this.speedY = Math.random() * -1 - 0.2;
             this.color = colors[Math.floor(Math.random() * colors.length)];
             this.opacity = Math.random() * 0.5 + 0.1;
         }
@@ -400,12 +407,10 @@
             this.x += this.speedX;
             this.y += this.speedY;
             
-            // Re-spawn particles at the bottom once they float off-screen
             if (this.y < 0) {
                 this.y = canvas.height;
                 this.x = Math.random() * canvas.width;
             }
-            // Gentle boundary wrap for X axis
             if (this.x > canvas.width || this.x < 0) {
                 this.speedX = -this.speedX;
             }
@@ -420,7 +425,6 @@
 
     function init() {
         particlesArray = [];
-        // Number of particles adapts to screen width to keep mobile from lagging
         let numParticles = window.innerWidth < 768 ? 50 : 120;
         for (let i = 0; i < numParticles; i++) {
             particlesArray.push(new Particle());
@@ -436,7 +440,6 @@
         requestAnimationFrame(animate);
     }
 
-    // Handle window resizing seamlessly
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -445,6 +448,73 @@
 
     init();
     animate();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // 1. Initialize Supabase
+    const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'https://tdpwchoqxgtczokdnsqp.supabase.co'; // <--- PASTE YOUR KEY HERE
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Grab DOM elements
+    const emailInput = document.getElementById('email-input');
+    const passwordInput = document.getElementById('password-input');
+    const authMessage = document.getElementById('auth-message');
+
+    // 2. Registration Function
+    async function registerUser() {
+        authMessage.innerText = "Forging new credentials...";
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        if(!email || !password) {
+            authMessage.innerText = "Error: Please provide an email and passphrase.";
+            authMessage.style.color = "#f96854";
+            return;
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            authMessage.innerText = "Error: " + error.message;
+            authMessage.style.color = "#f96854"; 
+        } else {
+            authMessage.innerText = "Success! Check your email to confirm the pact.";
+            authMessage.style.color = "var(--magic-glow)"; 
+        }
+    }
+
+    // 3. Login Function
+    async function loginUser() {
+        authMessage.innerText = "Consulting the archives...";
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        if(!email || !password) {
+            authMessage.innerText = "Error: Please provide an email and passphrase.";
+            authMessage.style.color = "#f96854";
+            return;
+        }
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            authMessage.innerText = "Access Denied: " + error.message;
+            authMessage.style.color = "#f96854";
+        } else {
+            authMessage.innerText = "Welcome back, Adventurer!";
+            authMessage.style.color = "var(--magic-glow)";
+        }
+    }
 </script>
 
 </body>
