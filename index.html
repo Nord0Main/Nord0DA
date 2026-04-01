@@ -455,9 +455,10 @@
 <script>
     // 1. Initialize Supabase
     const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcHdjaG9xeGd0Y3pva2Ruc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjM0MzEsImV4cCI6MjA5MDU5OTQzMX0.AziHO9vPdRsCTrkkuSO8Rzu17QNOjPntvOdv8K_SXso'; 
+    const SUPABASE_ANON_KEY = 'sb_publishable_tgazBA1PjoodrGOALUAjMQ_-UbJd3g8'; 
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // FIX: Renamed variable to prevent collision crash
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Grab DOM elements
     const emailInput = document.getElementById('email-input');
@@ -466,10 +467,6 @@
 
     // 2. Registration Function
     async function registerUser() {
-        // --- DEBUG TEST ---
-        alert("The button is alive!"); 
-        // ------------------
-
         authMessage.innerText = "Forging new credentials...";
         const email = emailInput.value;
         const password = passwordInput.value;
@@ -480,7 +477,8 @@
             return;
         }
 
-        const { data, error } = await supabase.auth.signUp({
+        // FIX: Using the renamed client
+        const { data, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
         });
@@ -506,7 +504,8 @@
             return;
         }
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        // FIX: Using the renamed client
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password,
         });
