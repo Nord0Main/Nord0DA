@@ -324,11 +324,11 @@
         <div class="grid" style="max-width: 800px; margin: 0 auto;">
             <div class="card">
                 <h3>Windows</h3>
-                <a href="#" class="btn btn-primary">Download .exe</a>
+                <a href="Nord0DA_Windows.zip" download class="btn btn-primary">Download .zip</a>
             </div>
             <div class="card">
                 <h3>Linux / Mac</h3>
-                <a href="#" class="btn btn-primary">Download .zip</a>
+                <a href="Nord0DA_Unix.zip" download class="btn btn-primary">Download .zip</a>
             </div>
         </div>
     </div>
@@ -347,7 +347,7 @@
         </div>
         <div class="faq-item">
             <h3>Can I adventure offline?</h3>
-            <p>Currently, a connection to the arcane web (internet) is required to communicate with the Nord0 AI engine.</p>
+            <p>Yes. Because the Nord0 AI engine is designed to run completely locally on your own hardware, you are free to adventure entirely offline. Once the initial archives are downloaded to your machine, no connection to the arcane web is required.</p>
         </div>
     </div>
 </section>
@@ -370,6 +370,10 @@
             
             <div style="margin: 10px 0; color: var(--text-dim); font-size: 0.8rem;">— OR —</div>
             
+            <button class="btn btn-outline" style="width: 100%; border-color: #4285F4; color: #fff; background: rgba(0,0,0,0.5);" onclick="loginWithGoogle()">
+                <i class="fab fa-google" style="color: #4285F4;"></i> Sign in with Google
+            </button>
+
             <button class="btn btn-outline" style="width: 100%; border-color: #555; color: #fff; background: rgba(0,0,0,0.5);" onclick="loginWithGithub()">
                 <i class="fab fa-github"></i> Sign in with GitHub
             </button>
@@ -534,6 +538,20 @@
             authMessage.style.color = "#f96854";
         }
     }
+
+    // 5. Google Auth Function
+    async function loginWithGoogle() {
+        authMessage.innerText = "Summoning Google...";
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+        });
+        
+        if (error) {
+            authMessage.innerText = "Error: " + error.message;
+            authMessage.style.color = "#f96854";
+        }
+    }
+    
 </script>
 </body>
 </html>
