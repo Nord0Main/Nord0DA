@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nord0DA | AI-Powered Adventures</title>
+    <title>Nord0DA | Adventurer Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -14,6 +14,7 @@
             --magic-glow: #06b6d4;
             --text-main: #fdfbf7;
             --text-dim: #b3b9c5;
+            --danger: #f96854;
         }
 
         body {
@@ -23,252 +24,73 @@
             margin: 0;
             line-height: 1.6;
             scroll-behavior: smooth;
-            position: relative;
         }
 
-        /* Canvas for magical dust */
-        #magic-dust {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-        }
+        #magic-dust { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        h1, h2, h3, .logo { font-family: 'Cinzel', serif; font-weight: 700; }
 
-        h1, h2, h3, .logo {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-        }
-
-        /* Navigation */
         nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 5%;
-            background: rgba(11, 15, 25, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            flex-wrap: wrap;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 5%; background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(212, 175, 55, 0.2);
         }
 
-        .logo { 
-            font-size: 1.8rem; 
-            letter-spacing: 2px; 
-            color: var(--gold-accent); 
-            text-decoration: none; 
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-        }
-        
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 25px;
+        .logo { font-size: 1.8rem; color: var(--gold-accent); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 25px; }
+        .nav-links a { color: var(--text-main); text-decoration: none; transition: 0.3s; }
+        .nav-links a:hover { color: var(--magic-glow); }
+
+        /* HERO & PROFILE VISIBILITY */
+        #hero-section { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 100px 20px; }
+        #profile-section { display: none; padding: 60px 10%; }
+
+        /* PROFILE UI */
+        .profile-header {
+            display: flex; align-items: center; gap: 30px; background: var(--bg-card);
+            padding: 40px; border-radius: 20px; border: 1px solid var(--gold-accent);
+            margin-bottom: 40px; position: relative;
         }
 
-        .nav-links a { 
-            color: var(--text-main); 
-            text-decoration: none; 
-            font-size: 1rem; 
-            transition: 0.3s; 
+        .profile-pic-container { position: relative; width: 120px; height: 120px; }
+        .profile-pic {
+            width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--gold-accent);
+            object-fit: cover; background: #000; display: flex; align-items: center; justify-content: center;
         }
-        
-        .nav-links a:hover { 
-            color: var(--magic-glow); 
-            text-shadow: 0 0 8px var(--magic-glow);
+        .level-badge {
+            position: absolute; bottom: 0; right: 0; background: var(--gold-accent);
+            color: #000; font-weight: bold; padding: 4px 10px; border-radius: 10px; font-size: 0.9rem;
         }
 
-        /* Hero Section */
-        header {
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: radial-gradient(circle at center, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
-            padding: 40px 20px;
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .char-card {
+            background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; cursor: pointer;
+            border: 1px solid transparent; transition: 0.3s; text-align: center;
         }
+        .char-card:hover { border-color: var(--magic-glow); transform: scale(1.02); }
+        .char-card.active { border-color: var(--gold-accent); background: rgba(212, 175, 55, 0.1); }
 
-        header h1 { 
-            font-size: 4.5rem; 
-            margin-bottom: 10px; 
-            color: var(--gold-accent);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.4);
-        }
-        
-        header p { 
-            color: var(--text-dim); 
-            max-width: 650px; 
-            font-size: 1.3rem; 
-            font-weight: 600;
-        }
-
-        /* Sections */
-        section { padding: 80px 10%; }
-        h2 { 
-            font-size: 3rem; 
-            margin-bottom: 50px; 
-            text-align: center; 
-            color: var(--text-main);
-            position: relative;
-        }
-        
-        h2::after {
-            content: '✦';
-            display: block;
-            color: var(--gold-accent);
-            font-size: 1.5rem;
-            margin-top: 10px;
-        }
-
-        /* Adventure Grid & Cards */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
-        
-        .card { 
-            background: var(--bg-card); 
-            padding: 40px 30px; 
-            border-radius: 16px; 
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.5);
-            transition: all 0.4s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .card:hover { 
-            transform: translateY(-10px); 
-            border-color: var(--gold-accent);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 20px rgba(6, 182, 212, 0.2);
-        }
-
-        .card h3 { font-size: 1.8rem; color: var(--gold-accent); margin-bottom: 15px; }
-        
-        .coming-soon { opacity: 0.7; }
-        .coming-soon::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px);
-            pointer-events: none;
-        }
-
-        /* Buttons */
+        /* BUTTONS */
         .btn {
-            display: inline-block;
-            padding: 14px 36px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-family: 'Quicksand', sans-serif;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
+            display: inline-block; padding: 12px 28px; border-radius: 50px; text-decoration: none;
+            font-weight: 600; cursor: pointer; border: none; transition: 0.3s; font-size: 0.9rem;
         }
-        
-        .btn-primary { 
-            background: linear-gradient(135deg, var(--gold-accent), #b8962e); 
-            color: #111; 
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-        }
-        
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-            color: #000;
+        .btn-primary { background: var(--gold-accent); color: #000; }
+        .btn-outline { border: 2px solid var(--gold-accent); color: var(--gold-accent); background: transparent; }
+        .btn-sync { background: var(--magic-glow); color: #fff; }
+
+        input {
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #fff; padding: 10px; border-radius: 8px; margin-right: 10px;
         }
 
-        .btn-outline { 
-            border: 2px solid var(--gold-accent); 
-            color: var(--gold-accent); 
-            background: transparent;
+        /* MODAL */
+        #tos-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;
         }
-        
-        .btn-outline:hover {
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .btn-patreon { 
-            background: #f96854; 
-            color: #fff; 
-            box-shadow: 0 4px 15px rgba(249, 104, 84, 0.4);
-        }
-        
-        .btn-patreon:hover { transform: scale(1.05); }
-
-        /* FAQ */
-        .faq-item { 
-            margin-bottom: 20px; 
-            background: var(--bg-card); 
-            padding: 25px; 
-            border-radius: 12px; 
-            border-left: 4px solid var(--gold-accent);
-            text-align: left; 
-            transition: 0.3s;
-        }
-        
-        .faq-item:hover { background: rgba(36, 44, 73, 0.9); }
-        .faq-item h3 { margin-top: 0; color: var(--text-main); font-size: 1.3rem; }
-        .faq-item p { color: var(--text-dim); margin-bottom: 0; }
-
-        /* Temp Login */
-        .login-temp { text-align: center; max-width: 400px; margin: 0 auto; }
-        input { 
-            width: 100%; padding: 14px; margin: 10px 0; box-sizing: border-box;
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(212, 175, 55, 0.3); 
-            color: #fff; border-radius: 8px; font-family: 'Quicksand', sans-serif;
-            transition: 0.3s;
-        }
-        input:focus { outline: none; border-color: var(--magic-glow); background: rgba(0,0,0,0.5); }
-
-        /* Footer */
-        footer { 
-            padding: 40px; 
-            text-align: center; 
-            border-top: 1px solid rgba(212, 175, 55, 0.2); 
-            color: var(--text-dim); 
-            background: #080b12;
-        }
-
-        /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 768px) {
-            nav {
-                flex-direction: column;
-                padding: 1rem;
-                gap: 15px;
-            }
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
-            }
-            header h1 {
-                font-size: 2.8rem;
-            }
-            header p {
-                font-size: 1.1rem;
-            }
-            h2 {
-                font-size: 2.2rem;
-            }
-            section {
-                padding: 50px 5%;
-            }
-            .btn {
-                width: 100%;
-                box-sizing: border-box;
-                text-align: center;
-                margin-top: 10px;
-            }
+        .modal-content {
+            background: var(--bg-twilight); padding: 40px; border-radius: 20px;
+            max-width: 500px; border: 2px solid var(--gold-accent); text-align: center;
         }
     </style>
 </head>
@@ -278,287 +100,160 @@
 
 <nav>
     <a href="#" class="logo">NORD0DA</a>
-    <div class="nav-links">
+    <div class="nav-links" id="nav-links">
         <a href="#adventures">Adventures</a>
         <a href="#downloads">Downloads</a>
-        <a href="#faq">FAQ</a>
-        <a href="#support">Support</a>
-        <a href="#auth" class="btn btn-outline" style="padding: 8px 20px;">Login</a>
+        <button class="btn btn-outline" id="auth-btn" onclick="scrollToAuth()">Login</button>
     </div>
 </nav>
 
-<header>
-    <h1>Step Into the Unknown</h1>
-    <p>The next generation of AI-driven text adventures. Your choices don't just shape the story—they conjure the world itself.</p>
+<header id="hero-section">
+    <h1 id="main-title">Step Into the Unknown</h1>
+    <p>The next generation of AI-driven text adventures. Your choices conjure the world itself.</p>
     <a href="#downloads" class="btn btn-primary" style="margin-top: 30px;">Begin Your Journey</a>
 </header>
 
-<section id="adventures">
-    <h2>Current Adventures</h2>
-    <div class="grid">
-        <div class="card">
-            <i class="fas fa-dragon fa-3x" style="color:var(--gold-accent); margin-bottom:20px;"></i>
-            <h3>High Fantasy</h3>
-            <p>Magic, dragons, and ancient ruins await. Uncover secrets in a living world.</p>
-            <span style="color:var(--magic-glow); font-weight: bold; font-family: 'Cinzel', serif;">✦ Active Module ✦</span>
+<section id="profile-section">
+    <div class="profile-header">
+        <div class="profile-pic-container">
+            <div class="profile-pic" id="active-char-pic"><i class="fas fa-user-shield fa-3x"></i></div>
+            <div class="level-badge" id="active-char-level">Lv. 0</div>
         </div>
-        <div class="card coming-soon">
-            <i class="fas fa-rocket fa-3x" style="color:var(--text-dim); margin-bottom:20px;"></i>
-            <h3>Sci-Fi Noir</h3>
-            <p>Cybernetics and neon-soaked mysteries in a distant future.</p>
-            <span style="font-family: 'Cinzel', serif; color: var(--text-dim);">Coming Soon</span>
+        <div style="flex-grow: 1;">
+            <h2 id="display-username" style="margin: 0; text-align: left;">New Adventurer</h2>
+            <div style="margin-top: 10px;">
+                <input type="text" id="username-input" placeholder="Set Public Name...">
+                <button class="btn btn-primary" onclick="updateUsername()">Update Name</button>
+            </div>
         </div>
-        <div class="card coming-soon">
-            <i class="fas fa-ship fa-3x" style="color:var(--text-dim); margin-bottom:20px;"></i>
-            <h3>High Seas</h3>
-            <p>Pirates, krakens, and hidden treasures buried in the deep.</p>
-            <span style="font-family: 'Cinzel', serif; color: var(--text-dim);">Coming Soon</span>
+        <button class="btn btn-sync" onclick="syncCharacters()"><i class="fas fa-sync"></i> Sync Saves</button>
+    </div>
+
+    <div id="character-management">
+        <h3>Your Character Vault</h3>
+        <p style="color: var(--text-dim);">Select a character to represent you in the realms.</p>
+        <div class="char-grid" id="char-list">
+            <p>No characters found. Click 'Sync' to bridge your local saves.</p>
+        </div>
+    </div>
+
+    <div id="market-status" style="margin-top: 40px; display: none;">
+        <div class="profile-header" style="border-color: var(--magic-glow);">
+            <div style="flex-grow: 1;">
+                <h3>Marketplace Eligibility</h3>
+                <p id="eligibility-text">This character is currently restricted to local loot only.</p>
+            </div>
+            <button class="btn btn-primary" id="market-btn" onclick="openTOS()">Enable Market</button>
         </div>
     </div>
 </section>
 
-<section id="downloads" style="background: rgba(8, 11, 18, 0.6);">
-    <h2>Enter the Archive</h2>
-    <div style="text-align: center;">
-        <p style="color: var(--text-dim); margin-bottom: 30px;">Current Incantation: <b style="color: var(--gold-accent);">v0.1.1-alpha</b></p>
-        <div class="grid" style="max-width: 800px; margin: 0 auto;">
-            <div class="card">
-                <h3>Windows</h3>
-                <a href="https://github.com/Nord0Main/Nord0DA/releases/latest/download/Nord0DA-Alpha.zip" download class="btn btn-primary">Download .zip</a>
-            </div>
-            <div class="card">
-                <h3>Linux / Mac</h3>
-                <a href="https://github.com/Nord0Main/Nord0DA/releases/latest/download/Nord0DA-Alpha.zip" download class="btn btn-primary">Download .zip</a>
-            </div>
-        </div>
+<div id="tos-modal">
+    <div class="modal-content">
+        <h3>Marketplace Covenant</h3>
+        <p style="text-align: left; font-size: 0.9rem;">
+            1. Characters must be validated by the Odin Protocol.<br>
+            2. <b>Hardcore characters</b> may never use the Market.<br>
+            3. All legendary items are 1-of-1 and tracked globally.<br>
+            4. You agree to the soul-binding terms of Nord0Labs.
+        </p>
+        <button class="btn btn-primary" onclick="acceptTOS()">I Accept the Covenant</button>
+        <button class="btn btn-outline" onclick="closeTOS()" style="margin-left: 10px;">Decline</button>
     </div>
-</section>
-
-<section id="faq">
-    <h2>Lore & F.A.Q.</h2>
-    <div style="max-width: 700px; margin: 0 auto;">
-        <div class="faq-item">
-            <h3>How does the Game Master AI work?</h3>
-            <p>Nord0DA uses custom-tuned LLMs to weave context-aware responses, ensuring no two dungeon runs or tavern brawls are ever the same.</p>
-        </div>
-        <div class="faq-item">
-            <h3>Is there a toll to pass?</h3>
-            <p>The base Fantasy module is free to play during our Alpha phase. Pledging your support on Patreon helps us keep the magical servers running.</p>
-        </div>
-        <div class="faq-item">
-            <h3>Can I adventure offline?</h3>
-            <p>Yes. Because the Nord0 AI engine is designed to run completely locally on your own hardware, you are free to adventure entirely offline. Once the initial archives are downloaded to your machine, no connection to the arcane web is required.</p>
-        </div>
-    </div>
-</section>
+</div>
 
 <section id="auth" style="background: rgba(8, 11, 18, 0.6);">
     <h2>Join the Guild</h2>
     <div class="card login-temp">
-        <p>Login or Register to save your progress across realms.</p>
-        
-        <input type="email" id="email-input" placeholder="Email Address (Arcane Missive)">
-        <input type="password" id="password-input" placeholder="Secret Passphrase">
-        
-        <p id="auth-message" style="color: var(--gold-accent); font-size: 0.9rem; min-height: 20px; margin: 5px 0;"></p>
-        
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-            <div style="display: flex; gap: 10px;">
-                <button class="btn btn-primary" style="flex: 1;" onclick="loginUser()">Login</button>
-                <button class="btn btn-outline" style="flex: 1; padding: 14px 0;" onclick="registerUser()">Register</button>
-            </div>
-            
-            <div style="margin: 10px 0; color: var(--text-dim); font-size: 0.8rem;">— OR —</div>
-            
-            <button class="btn btn-outline" style="width: 100%; border-color: #4285F4; color: #fff; background: rgba(0,0,0,0.5);" onclick="loginWithGoogle()">
-                <i class="fab fa-google" style="color: #4285F4;"></i> Sign in with Google
-            </button>
-
-            <button class="btn btn-outline" style="width: 100%; border-color: #555; color: #fff; background: rgba(0,0,0,0.5);" onclick="loginWithGithub()">
-                <i class="fab fa-github"></i> Sign in with GitHub
-            </button>
+        <p id="auth-message" style="color: var(--gold-accent);">Login to save your progress.</p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn btn-outline" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Sign in with Google</button>
+            <button class="btn btn-outline" onclick="loginWithGithub()"><i class="fab fa-github"></i> Sign in with GitHub</button>
         </div>
-        
-        <p style="font-size: 0.85rem; color: var(--text-dim); margin-top:20px;">Database connected via Supabase.</p>
     </div>
 </section>
 
-<section id="support" style="text-align: center;">
-    <h2>Support the Weavers</h2>
-    <p style="max-width: 600px; margin: 0 auto 30px auto; color: var(--text-dim);">Help us build the ultimate AI dungeon master. Patrons gain early access to new realms, including our upcoming Sci-Fi and Isekai modules.</p>
-    <a href="https://www.patreon.com/c/Nord0" target="_blank" class="btn btn-patreon">
-        <i class="fab fa-patreon"></i> Support Nord0 on Patreon
-    </a>
-</section>
-
-<footer>
-    <p>&copy; 2026 Nord0Labs. All rights reserved across the multiverse.</p>
-</footer>
-
-<script>
-    const canvas = document.getElementById('magic-dust');
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    let particlesArray = [];
-    const colors = ['rgba(6, 182, 212, ', 'rgba(212, 175, 55, ']; 
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2.5 + 0.5;
-            this.speedX = Math.random() * 0.8 - 0.4;
-            this.speedY = Math.random() * -1 - 0.2;
-            this.color = colors[Math.floor(Math.random() * colors.length)];
-            this.opacity = Math.random() * 0.5 + 0.1;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            
-            if (this.y < 0) {
-                this.y = canvas.height;
-                this.x = Math.random() * canvas.width;
-            }
-            if (this.x > canvas.width || this.x < 0) {
-                this.speedX = -this.speedX;
-            }
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = this.color + this.opacity + ')';
-            ctx.fill();
-        }
-    }
-
-    function init() {
-        particlesArray = [];
-        let numParticles = window.innerWidth < 768 ? 50 : 120;
-        for (let i = 0; i < numParticles; i++) {
-            particlesArray.push(new Particle());
-        }
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < particlesArray.length; i++) {
-            particlesArray[i].update();
-            particlesArray[i].draw();
-        }
-        requestAnimationFrame(animate);
-    }
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        init();
-    });
-
-    init();
-    animate();
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // 1. Initialize Supabase
-    const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcHdjaG9xeGd0Y3pva2Ruc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjM0MzEsImV4cCI6MjA5MDU5OTQzMX0.AziHO9vPdRsCTrkkuSO8Rzu17QNOjPntvOdv8K_SXso'; 
-    
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_KEY_HERE';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const emailInput = document.getElementById('email-input');
-    const passwordInput = document.getElementById('password-input');
-    const authMessage = document.getElementById('auth-message');
+    let currentUser = null;
+    let activeCharacter = null;
 
-    // 2. Registration Function
-    async function registerUser() {
-        authMessage.innerText = "Forging new credentials...";
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
-        if(!email || !password) {
-            authMessage.innerText = "Error: Please provide an email and passphrase.";
-            authMessage.style.color = "#f96854";
-            return;
-        }
-
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-        });
-
-        if (error) {
-            authMessage.innerText = "Error: " + error.message;
-            authMessage.style.color = "#f96854"; 
+    // AUTH LISTENER
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (session) {
+            currentUser = session.user;
+            showProfile();
         } else {
-            authMessage.innerText = "Success! Check your email to confirm the pact.";
-            authMessage.style.color = "var(--magic-glow)"; 
+            currentUser = null;
+            hideProfile();
         }
+    });
+
+    function showProfile() {
+        document.getElementById('hero-section').style.display = 'none';
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('profile-section').style.display = 'block';
+        document.getElementById('display-username').innerText = currentUser.email.split('@')[0];
+        document.getElementById('auth-btn').innerText = "Logout";
+        document.getElementById('auth-btn').onclick = () => supabase.auth.signOut();
     }
 
-    // 3. Login Function
-    async function loginUser() {
-        authMessage.innerText = "Consulting the archives...";
-        const email = emailInput.value;
-        const password = passwordInput.value;
+    function hideProfile() {
+        document.getElementById('hero-section').style.display = 'flex';
+        document.getElementById('auth').style.display = 'block';
+        document.getElementById('profile-section').style.display = 'none';
+        document.getElementById('auth-btn').innerText = "Login";
+        document.getElementById('auth-btn').onclick = scrollToAuth;
+    }
 
-        if(!email || !password) {
-            authMessage.innerText = "Error: Please provide an email and passphrase.";
-            authMessage.style.color = "#f96854";
-            return;
-        }
+    async function syncCharacters() {
+        const { data, error } = await supabase.from('characters').select('*').eq('user_id', currentUser.id);
+        const list = document.getElementById('char-list');
+        list.innerHTML = "";
 
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password,
-        });
-
-        if (error) {
-            authMessage.innerText = "Access Denied: " + error.message;
-            authMessage.style.color = "#f96854";
+        if (data && data.length > 0) {
+            data.forEach(char => {
+                const card = document.createElement('div');
+                card.className = `char-card ${activeCharacter?.id === char.id ? 'active' : ''}`;
+                card.innerHTML = `
+                    <i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-shield-alt'} fa-2x" style="color:${char.is_hardcore ? 'var(--danger)' : 'var(--gold-accent)'}"></i>
+                    <h4>${char.name}</h4>
+                    <p>Level ${char.level} ${char.is_hardcore ? '(HC)' : ''}</p>
+                `;
+                card.onclick = () => selectCharacter(char);
+                list.appendChild(card);
+            });
         } else {
-            authMessage.innerText = "Welcome back, Adventurer!";
-            authMessage.style.color = "var(--magic-glow)";
+            list.innerHTML = "<p>No characters synced. Start a game in the local engine first!</p>";
         }
     }
 
-    // 4. GitHub Auth Function (Forced Redirect Fix)
-    async function loginWithGithub() {
-        authMessage.innerText = "Summoning GitHub...";
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'github',
-            options: {
-                // This forces it to return to exactly your Nord0DA folder
-                redirectTo: 'https://nord0main.github.io/Nord0DA/'
-            }
-        });
-        
-        if (error) {
-            authMessage.innerText = "Error: " + error.message;
-            authMessage.style.color = "#f96854";
+    function selectCharacter(char) {
+        activeCharacter = char;
+        document.getElementById('active-char-pic').innerHTML = `<i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-user-shield'} fa-3x"></i>`;
+        document.getElementById('active-char-level').innerText = `Lv. ${char.level}`;
+        document.getElementById('market-status').style.display = char.is_hardcore ? 'none' : 'block';
+        syncCharacters(); // Refresh highlight
+    }
+
+    function openTOS() { document.getElementById('tos-modal').style.display = 'flex'; }
+    function closeTOS() { document.getElementById('tos-modal').style.display = 'none'; }
+
+    async function acceptTOS() {
+        // Here we update Supabase to make the character market eligible
+        const { error } = await supabase.from('characters').update({ is_market_eligible: true }).eq('id', activeCharacter.id);
+        if(!error) {
+            alert("The Covenant is sealed. This character is now Market Eligible.");
+            closeTOS();
+            selectCharacter(activeCharacter);
         }
     }
 
-    // 5. Google Auth Function (Forced Redirect Fix)
-    async function loginWithGoogle() {
-        authMessage.innerText = "Summoning Google...";
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: 'https://nord0main.github.io/Nord0DA/'
-            }
-        });
-        
-        if (error) {
-            authMessage.innerText = "Error: " + error.message;
-            authMessage.style.color = "#f96854";
-        }
-    }
-    
+    function scrollToAuth() { document.getElementById('auth').scrollIntoView({ behavior: 'smooth' }); }
 </script>
 </body>
 </html>
