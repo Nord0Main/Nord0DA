@@ -4,23 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nord0DA | AI-Powered Adventures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --bg-dark: #0a0a0a;
-            --card-bg: #161616;
-            --accent: #007bff;
-            --text-main: #e0e0e0;
-            --text-dim: #a0a0a0;
+            --bg-twilight: #0f1423;
+            --bg-card: rgba(26, 32, 53, 0.85);
+            --gold-accent: #d4af37;
+            --magic-glow: #06b6d4;
+            --text-main: #fdfbf7;
+            --text-dim: #b3b9c5;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background: linear-gradient(135deg, #0b0f19 0%, #171b2f 50%, #0f1423 100%);
             color: var(--text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Quicksand', sans-serif;
             margin: 0;
             line-height: 1.6;
             scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, .logo {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
         }
 
         /* Navigation */
@@ -29,16 +36,34 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem 5%;
-            background: rgba(10, 10, 10, 0.95);
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
         }
 
-        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; color: #fff; text-decoration: none; }
-        .nav-links a { color: var(--text-dim); text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: 0.3s; }
-        .nav-links a:hover { color: var(--accent); }
+        .logo { 
+            font-size: 1.8rem; 
+            letter-spacing: 2px; 
+            color: var(--gold-accent); 
+            text-decoration: none; 
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        
+        .nav-links a { 
+            color: var(--text-main); 
+            text-decoration: none; 
+            margin-left: 25px; 
+            font-size: 1rem; 
+            transition: 0.3s; 
+        }
+        
+        .nav-links a:hover { 
+            color: var(--magic-glow); 
+            text-shadow: 0 0 8px var(--magic-glow);
+        }
 
         /* Hero Section */
         header {
@@ -48,107 +73,202 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+            background: radial-gradient(circle at center, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
             padding: 0 20px;
         }
 
-        header h1 { font-size: 4rem; margin-bottom: 10px; font-weight: 200; color: #fff; }
-        header p { color: var(--text-dim); max-width: 600px; font-size: 1.2rem; }
+        header h1 { 
+            font-size: 4.5rem; 
+            margin-bottom: 10px; 
+            color: var(--gold-accent);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        header p { 
+            color: var(--text-dim); 
+            max-width: 650px; 
+            font-size: 1.3rem; 
+            font-weight: 600;
+        }
 
         /* Sections */
         section { padding: 80px 10%; }
-        h2 { font-size: 2.5rem; margin-bottom: 40px; text-align: center; font-weight: 300; }
-
-        /* Adventure Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .card { 
-            background: var(--card-bg); 
-            padding: 30px; 
-            border-radius: 12px; 
-            border: 1px solid #222;
-            transition: 0.3s;
-            text-align: center;
+        h2 { 
+            font-size: 3rem; 
+            margin-bottom: 50px; 
+            text-align: center; 
+            color: var(--text-main);
+            position: relative;
         }
-        .card:hover { border-color: var(--accent); transform: translateY(-5px); }
-        .coming-soon { opacity: 0.5; font-style: italic; }
+        
+        h2::after {
+            content: '✦';
+            display: block;
+            color: var(--gold-accent);
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+
+        /* Adventure Grid & Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        
+        .card { 
+            background: var(--bg-card); 
+            padding: 40px 30px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.5);
+            transition: all 0.4s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover { 
+            transform: translateY(-10px); 
+            border-color: var(--gold-accent);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+
+        .card h3 { font-size: 1.8rem; color: var(--gold-accent); margin-bottom: 15px; }
+        
+        .coming-soon { opacity: 0.7; }
+        .coming-soon::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px);
+            pointer-events: none;
+        }
 
         /* Buttons */
         .btn {
             display: inline-block;
-            padding: 12px 32px;
-            border-radius: 6px;
+            padding: 14px 36px;
+            border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
-            transition: 0.3s;
+            font-family: 'Quicksand', sans-serif;
+            transition: all 0.3s ease;
             cursor: pointer;
             border: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
         }
-        .btn-primary { background: var(--accent); color: #fff; }
-        .btn-outline { border: 1px solid var(--accent); color: var(--accent); margin-top: 10px; }
-        .btn-patreon { background: #f96854; color: #fff; }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--gold-accent), #b8962e); 
+            color: #111; 
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+            color: #000;
+        }
+
+        .btn-outline { 
+            border: 2px solid var(--gold-accent); 
+            color: var(--gold-accent); 
+            background: transparent;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .btn-patreon { 
+            background: #f96854; 
+            color: #fff; 
+            box-shadow: 0 4px 15px rgba(249, 104, 84, 0.4);
+        }
+        
+        .btn-patreon:hover { transform: scale(1.05); }
 
         /* FAQ */
-        .faq-item { margin-bottom: 20px; background: var(--card-bg); padding: 20px; border-radius: 8px; text-align: left; }
-        .faq-item h3 { margin-top: 0; color: var(--accent); font-size: 1.1rem; }
+        .faq-item { 
+            margin-bottom: 20px; 
+            background: var(--bg-card); 
+            padding: 25px; 
+            border-radius: 12px; 
+            border-left: 4px solid var(--gold-accent);
+            text-align: left; 
+            transition: 0.3s;
+        }
+        
+        .faq-item:hover { background: rgba(36, 44, 73, 0.9); }
+        .faq-item h3 { margin-top: 0; color: var(--text-main); font-size: 1.3rem; }
+        .faq-item p { color: var(--text-dim); margin-bottom: 0; }
 
-        /* Footer */
-        footer { padding: 40px; text-align: center; border-top: 1px solid #222; color: var(--text-dim); }
-
-        /* Modal (Temporary Login) */
+        /* Temp Login */
         .login-temp { text-align: center; max-width: 400px; margin: 0 auto; }
         input { 
-            width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box;
-            background: #222; border: 1px solid #333; color: #fff; border-radius: 4px; 
+            width: 100%; padding: 14px; margin: 10px 0; box-sizing: border-box;
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(212, 175, 55, 0.3); 
+            color: #fff; border-radius: 8px; font-family: 'Quicksand', sans-serif;
+            transition: 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--magic-glow); background: rgba(0,0,0,0.5); }
+
+        /* Footer */
+        footer { 
+            padding: 40px; 
+            text-align: center; 
+            border-top: 1px solid rgba(212, 175, 55, 0.2); 
+            color: var(--text-dim); 
+            background: #080b12;
         }
     </style>
 </head>
 <body>
 
 <nav>
-    <a href="#" class="logo">NORD0<span style="color:var(--accent)">DA</span></a>
+    <a href="#" class="logo">NORD0DA</a>
     <div class="nav-links">
         <a href="#adventures">Adventures</a>
         <a href="#downloads">Downloads</a>
         <a href="#faq">FAQ</a>
         <a href="#support">Support</a>
-        <a href="#auth" class="btn btn-outline" style="padding: 5px 15px;">Login</a>
+        <a href="#auth" class="btn btn-outline" style="padding: 8px 20px;">Login</a>
     </div>
 </nav>
 
 <header>
-    <h1>Limitless Worlds</h1>
-    <p>The next generation of AI-driven text adventures. Your choices don't just change the story—they create the world.</p>
-    <a href="#downloads" class="btn btn-primary" style="margin-top: 20px;">Start Your Journey</a>
+    <h1>Step Into the Unknown</h1>
+    <p>The next generation of AI-driven text adventures. Your choices don't just shape the story—they conjure the world itself.</p>
+    <a href="#downloads" class="btn btn-primary" style="margin-top: 30px;">Begin Your Journey</a>
 </header>
 
 <section id="adventures">
     <h2>Current Adventures</h2>
     <div class="grid">
         <div class="card">
-            <i class="fas fa-dragon fa-3x" style="color:var(--accent); margin-bottom:15px;"></i>
+            <i class="fas fa-dragon fa-3x" style="color:var(--gold-accent); margin-bottom:20px;"></i>
             <h3>High Fantasy</h3>
-            <p>Magic, dragons, and ancient ruins. Available now.</p>
-            <span style="color:var(--accent)">Active Module</span>
+            <p>Magic, dragons, and ancient ruins await. Uncover secrets in a living world.</p>
+            <span style="color:var(--magic-glow); font-weight: bold; font-family: 'Cinzel', serif;">✦ Active Module ✦</span>
         </div>
         <div class="card coming-soon">
-            <i class="fas fa-rocket fa-3x" style="margin-bottom:15px;"></i>
+            <i class="fas fa-rocket fa-3x" style="color:var(--text-dim); margin-bottom:20px;"></i>
             <h3>Sci-Fi Noir</h3>
-            <p>Cybernetics and neon-soaked mysteries.</p>
-            <span>Coming Soon</span>
+            <p>Cybernetics and neon-soaked mysteries in a distant future.</p>
+            <span style="font-family: 'Cinzel', serif; color: var(--text-dim);">Coming Soon</span>
         </div>
         <div class="card coming-soon">
-            <i class="fas fa-ship fa-3x" style="margin-bottom:15px;"></i>
+            <i class="fas fa-ship fa-3x" style="color:var(--text-dim); margin-bottom:20px;"></i>
             <h3>High Seas</h3>
-            <p>Pirates, krakens, and hidden treasures.</p>
-            <span>Coming Soon</span>
+            <p>Pirates, krakens, and hidden treasures buried in the deep.</p>
+            <span style="font-family: 'Cinzel', serif; color: var(--text-dim);">Coming Soon</span>
         </div>
     </div>
 </section>
 
-<section id="downloads" style="background: #0f0f0f;">
-    <h2>Get the Game</h2>
+<section id="downloads" style="background: rgba(8, 11, 18, 0.6);">
+    <h2>Enter the Archive</h2>
     <div style="text-align: center;">
-        <p>Current Version: <b>v0.1.0-alpha</b></p>
+        <p style="color: var(--text-dim); margin-bottom: 30px;">Current Incantation: <b style="color: var(--gold-accent);">v0.1.0-alpha</b></p>
         <div class="grid" style="max-width: 800px; margin: 0 auto;">
             <div class="card">
                 <h3>Windows</h3>
@@ -163,44 +283,44 @@
 </section>
 
 <section id="faq">
-    <h2>F.A.Q.</h2>
+    <h2>Lore & F.A.Q.</h2>
     <div style="max-width: 700px; margin: 0 auto;">
         <div class="faq-item">
-            <h3>How does the AI work?</h3>
-            <p>Nord0DA uses custom-tuned LLMs to generate context-aware responses, ensuring no two adventures are ever the same.</p>
+            <h3>How does the Game Master AI work?</h3>
+            <p>Nord0DA uses custom-tuned LLMs to weave context-aware responses, ensuring no two dungeon runs or tavern brawls are ever the same.</p>
         </div>
         <div class="faq-item">
-            <h3>Is it free?</h3>
-            <p>The base Fantasy module is free to play during our Alpha phase. Support on Patreon helps us keep the servers running.</p>
+            <h3>Is there a toll to pass?</h3>
+            <p>The base Fantasy module is free to play during our Alpha phase. Pledging your support on Patreon helps us keep the magical servers running.</p>
         </div>
         <div class="faq-item">
-            <h3>Can I play offline?</h3>
-            <p>Currently, an internet connection is required to communicate with the Nord0 AI engine.</p>
+            <h3>Can I adventure offline?</h3>
+            <p>Currently, a connection to the arcane web (internet) is required to communicate with the Nord0 AI engine.</p>
         </div>
     </div>
 </section>
 
-<section id="auth" style="background: #0f0f0f;">
-    <h2>Join the Archive</h2>
+<section id="auth" style="background: rgba(8, 11, 18, 0.6);">
+    <h2>Join the Guild</h2>
     <div class="card login-temp">
-        <p>Login or Register to save your progress across devices.</p>
-        <input type="text" placeholder="Username">
-        <input type="password" placeholder="Password">
-        <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="alert('Account system coming soon!')">Login</button>
-        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top:15px;">Database integration in progress.</p>
+        <p>Login or Register to save your progress across realms.</p>
+        <input type="text" placeholder="Adventurer Name">
+        <input type="password" placeholder="Secret Passphrase">
+        <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="alert('The Guild doors are currently being reinforced. Account system coming soon!')">Unlock</button>
+        <p style="font-size: 0.85rem; color: var(--text-dim); margin-top:20px;">Database integration currently in progress.</p>
     </div>
 </section>
 
 <section id="support" style="text-align: center;">
-    <h2>Support Development</h2>
-    <p>Help us build the ultimate AI dungeon master. Patrons get early access to new modules like Isekai and Sci-Fi.</p>
+    <h2>Support the Weavers</h2>
+    <p style="max-width: 600px; margin: 0 auto 30px auto; color: var(--text-dim);">Help us build the ultimate AI dungeon master. Patrons gain early access to new realms, including our upcoming Sci-Fi and Isekai modules.</p>
     <a href="https://www.patreon.com/c/Nord0" target="_blank" class="btn btn-patreon">
         <i class="fab fa-patreon"></i> Support Nord0 on Patreon
     </a>
 </section>
 
 <footer>
-    <p>&copy; 2026 Nord0Labs. All rights reserved.</p>
+    <p>&copy; 2026 Nord0Labs. All rights reserved across the multiverse.</p>
 </footer>
 
 </body>
