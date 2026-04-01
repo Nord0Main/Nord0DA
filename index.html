@@ -40,14 +40,12 @@
         .nav-links a { color: var(--text-main); text-decoration: none; transition: 0.3s; }
         .nav-links a:hover { color: var(--magic-glow); }
 
-        /* SECTIONS */
         section { padding: 80px 10%; }
         header { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 20px; }
         
         #hero-section { display: flex; }
-        #profile-section { display: none; } /* Hidden until login */
+        #profile-section { display: none; } 
 
-        /* PROFILE UI */
         .profile-header {
             display: flex; align-items: center; gap: 30px; background: var(--bg-card);
             padding: 40px; border-radius: 20px; border: 1px solid var(--gold-accent);
@@ -72,7 +70,6 @@
         .char-card:hover { border-color: var(--magic-glow); transform: translateY(-5px); }
         .char-card.active { border-color: var(--gold-accent); background: rgba(212, 175, 55, 0.1); }
 
-        /* CARDS & GRIDS */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
         .card { 
             background: var(--bg-card); padding: 40px 30px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.3);
@@ -80,10 +77,10 @@
         }
         .card:hover { transform: translateY(-10px); border-color: var(--gold-accent); }
 
-        /* BUTTONS */
         .btn {
             display: inline-block; padding: 14px 32px; border-radius: 50px; text-decoration: none;
             font-weight: 600; cursor: pointer; border: none; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+            text-align: center;
         }
         .btn-primary { background: var(--gold-accent); color: #000; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); }
         .btn-outline { border: 2px solid var(--gold-accent); color: var(--gold-accent); background: transparent; }
@@ -94,10 +91,8 @@
             color: #fff; padding: 12px; border-radius: 8px; margin-right: 10px; font-family: 'Quicksand';
         }
 
-        /* FAQ */
         .faq-item { margin-bottom: 20px; background: var(--bg-card); padding: 25px; border-radius: 12px; border-left: 4px solid var(--gold-accent); text-align: left; }
 
-        /* MODAL */
         #tos-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;
@@ -122,7 +117,7 @@
         <a href="#adventures">Adventures</a>
         <a href="#downloads">Downloads</a>
         <a href="#faq">FAQ</a>
-        <button class="btn btn-outline" id="auth-btn" style="padding: 8px 20px;" onclick="scrollToAuth()">Login</button>
+        <a href="#auth" class="btn btn-outline" id="auth-nav-btn" style="padding: 8px 20px;">Login</a>
     </div>
 </nav>
 
@@ -151,7 +146,7 @@
     <div id="character-management">
         <h2 style="text-align: left; font-size: 2rem;">Your Character Vault</h2>
         <div class="char-grid" id="char-list">
-            <p>No characters synced. Start a game in the local engine first!</p>
+            <p>No characters found. Ensure your local engine is synced!</p>
         </div>
     </div>
 
@@ -248,7 +243,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // INITIALIZE SUPABASE
     const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcHdjaG9xeGd0Y3pva2Ruc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjM0MzEsImV4cCI6MjA5MDU5OTQzMX0.AziHO9vPdRsCTrkkuSO8Rzu17QNOjPntvOdv8K_SXso';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -256,7 +250,6 @@
     let currentUser = null;
     let activeCharacter = null;
 
-    // AUTH OBSERVER
     supabase.auth.onAuthStateChange((event, session) => {
         if (session) {
             currentUser = session.user;
@@ -272,20 +265,33 @@
         document.getElementById('hero-section').style.display = 'none';
         document.getElementById('auth').style.display = 'none';
         document.getElementById('profile-section').style.display = 'block';
-        document.getElementById('display-username').innerText = currentUser.user_metadata.full_name || currentUser.email.split('@')[0];
-        document.getElementById('auth-btn').innerText = "Logout";
-        document.getElementById('auth-btn').onclick = () => supabase.auth.signOut();
+        
+        // Handle metadata gracefully
+        const metadata = currentUser.user_metadata || {};
+        const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
+        document.getElementById('display-username').innerText = displayName;
+
+        // Change Nav Button to Logout
+        const navBtn = document.getElementById('auth-nav-btn');
+        navBtn.innerText = "Logout";
+        navBtn.removeAttribute('href'); // Remove anchor link
+        navBtn.onclick = async () => { await supabase.auth.signOut(); };
     }
 
     function hideProfile() {
         document.getElementById('hero-section').style.display = 'flex';
         document.getElementById('auth').style.display = 'block';
         document.getElementById('profile-section').style.display = 'none';
-        document.getElementById('auth-btn').innerText = "Login";
-        document.getElementById('auth-btn').onclick = scrollToAuth;
+
+        // Reset Nav Button to Login
+        const navBtn = document.getElementById('auth-nav-btn');
+        navBtn.innerText = "Login";
+        navBtn.setAttribute('href', '#auth'); // Restore anchor link
+        navBtn.onclick = null; // Let the anchor handle it
     }
 
     async function syncCharacters() {
+        if (!currentUser) return;
         const { data, error } = await supabase.from('characters').select('*').eq('user_id', currentUser.id);
         const list = document.getElementById('char-list');
         list.innerHTML = "";
@@ -297,13 +303,13 @@
                 card.innerHTML = `
                     <i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-user-shield'} fa-2x" style="color:${char.is_hardcore ? 'var(--danger)' : 'var(--gold-accent)'}; margin-bottom:10px;"></i>
                     <h4 style="margin:5px 0;">${char.name}</h4>
-                    <p style="font-size:0.8rem; margin:0;">Level ${char.level} ${char.is_hardcore ? '(Hardcore)' : ''}</p>
+                    <p style="font-size:0.8rem; margin:0;">Level ${char.level} ${char.is_hardcore ? '(HC)' : ''}</p>
                 `;
                 card.onclick = () => selectCharacter(char);
                 list.appendChild(card);
             });
         } else {
-            list.innerHTML = "<p style='grid-column: 1/-1;'>No characters found. Ensure your local engine is synced!</p>";
+            list.innerHTML = "<p style='grid-column: 1/-1;'>Vault empty. Bridge your local engine to begin.</p>";
         }
     }
 
@@ -352,8 +358,6 @@
         await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' } });
     }
 
-    function scrollToAuth() { document.getElementById('auth').scrollIntoView({ behavior: 'smooth' }); }
-
     // Particle Background
     const canvas = document.getElementById('magic-dust');
     const ctx = canvas.getContext('2d');
@@ -365,27 +369,14 @@
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
             this.size = Math.random() * 2;
-            this.speedY = Math.random() * -1 - 0.2;
-            this.opacity = Math.random() * 0.5;
+            this.speedY = Math.random() * -0.5 - 0.1;
+            this.opacity = Math.random() * 0.4;
         }
-        update() {
-            this.y += this.speedY;
-            if (this.y < 0) this.y = canvas.height;
-        }
-        draw() {
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`; ctx.fill();
-        }
+        update() { this.y += this.speedY; if (this.y < 0) this.y = canvas.height; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`; ctx.fill(); }
     }
-    function initParticles() {
-        particlesArray = [];
-        for (let i = 0; i < 100; i++) particlesArray.push(new Particle());
-    }
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particlesArray.forEach(p => { p.update(); p.draw(); });
-        requestAnimationFrame(animate);
-    }
+    function initParticles() { particlesArray = []; for (let i = 0; i < 80; i++) particlesArray.push(new Particle()); }
+    function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particlesArray.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
     initParticles(); animate();
     window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); });
 </script>
