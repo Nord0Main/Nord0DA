@@ -319,6 +319,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // SUPABASE CONFIGURATION
     const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcHdjaG9xeGd0Y3pva2Ruc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjM0MzEsImV4cCI6MjA5MDU5OTQzMX0.AziHO9vPdRsCTrkkuSO8Rzu17QNOjPntvOdv8K_SXso';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -327,6 +328,7 @@
     let activeCharacter = null;
     const authMessage = document.getElementById('auth-message');
 
+    // AUTH STATE LISTENER
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
             currentUser = session.user;
@@ -343,10 +345,12 @@
         document.getElementById('auth').style.display = 'none';
         document.getElementById('profile-section').style.display = 'block';
         
+        // Graceful metadata fallback
         const metadata = currentUser.user_metadata || {};
         const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
         document.getElementById('display-username').innerText = displayName;
 
+        // Turn Login button into Logout
         const navBtn = document.getElementById('auth-nav-btn');
         navBtn.innerText = "Logout";
         navBtn.removeAttribute('href'); 
@@ -358,12 +362,34 @@
         document.getElementById('auth').style.display = 'block';
         document.getElementById('profile-section').style.display = 'none';
 
+        // Turn Nav button back to Login
         const navBtn = document.getElementById('auth-nav-btn');
         navBtn.innerText = "Login";
         navBtn.setAttribute('href', '#auth'); 
         navBtn.onclick = null; 
     }
 
+    // UPDATE USERNAME FUNCTION
+    async function updateUsername() {
+        const inputField = document.getElementById('username-input');
+        const newName = inputField.value.trim();
+        
+        if (!newName) return; 
+
+        const { data, error } = await supabaseClient.auth.updateUser({
+            data: { full_name: newName }
+        });
+
+        if (error) {
+            alert("Failed to update name: " + error.message);
+        } else {
+            document.getElementById('display-username').innerText = newName;
+            inputField.value = ''; 
+            alert("The archives have recorded your new title, " + newName + ".");
+        }
+    }
+
+    // VAULT SYNC FUNCTION
     async function syncCharacters() {
         if (!currentUser) return;
         const { data, error } = await supabaseClient.from('characters').select('*').eq('user_id', currentUser.id);
@@ -387,6 +413,7 @@
         }
     }
 
+    // CHARACTER SELECTION FUNCTION
     function selectCharacter(char) {
         activeCharacter = char;
         document.getElementById('active-char-pic').innerHTML = `<i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-user-shield'} fa-3x"></i>`;
@@ -413,6 +440,7 @@
         syncCharacters();
     }
 
+    // TOS MODAL FUNCTIONS
     function openTOS() { document.getElementById('tos-modal').style.display = 'flex'; }
     function closeTOS() { document.getElementById('tos-modal').style.display = 'none'; }
 
@@ -424,7 +452,7 @@
         }
     }
 
-    // RESTORED ORIGINAL AUTH FUNCTIONS
+    // AUTH FUNCTIONS (With Redirect Fix)
     async function loginWithGithub() {
         authMessage.innerText = "Summoning GitHub...";
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
