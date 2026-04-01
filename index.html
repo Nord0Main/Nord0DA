@@ -362,9 +362,17 @@
         
         <p id="auth-message" style="color: var(--gold-accent); font-size: 0.9rem; min-height: 20px; margin: 5px 0;"></p>
         
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn btn-primary" style="flex: 1;" onclick="loginUser()">Login</button>
-            <button class="btn btn-outline" style="flex: 1; padding: 14px 0;" onclick="registerUser()">Register</button>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" style="flex: 1;" onclick="loginUser()">Login</button>
+                <button class="btn btn-outline" style="flex: 1; padding: 14px 0;" onclick="registerUser()">Register</button>
+            </div>
+            
+            <div style="margin: 10px 0; color: var(--text-dim); font-size: 0.8rem;">— OR —</div>
+            
+            <button class="btn btn-outline" style="width: 100%; border-color: #555; color: #fff; background: rgba(0,0,0,0.5);" onclick="loginWithGithub()">
+                <i class="fab fa-github"></i> Sign in with GitHub
+            </button>
         </div>
         
         <p style="font-size: 0.85rem; color: var(--text-dim); margin-top:20px;">Database connected via Supabase.</p>
@@ -451,16 +459,13 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
     // 1. Initialize Supabase
     const SUPABASE_URL = 'https://tdpwchoqxgtczokdnsqp.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'sb_publishable_tgazBA1PjoodrGOALUAjMQ_-UbJd3g8'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcHdjaG9xeGd0Y3pva2Ruc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjM0MzEsImV4cCI6MjA5MDU5OTQzMX0.AziHO9vPdRsCTrkkuSO8Rzu17QNOjPntvOdv8K_SXso'; 
     
-    // FIX: Renamed variable to prevent collision crash
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Grab DOM elements
     const emailInput = document.getElementById('email-input');
     const passwordInput = document.getElementById('password-input');
     const authMessage = document.getElementById('auth-message');
@@ -477,7 +482,6 @@
             return;
         }
 
-        // FIX: Using the renamed client
         const { data, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
@@ -504,7 +508,6 @@
             return;
         }
 
-        // FIX: Using the renamed client
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password,
@@ -518,8 +521,19 @@
             authMessage.style.color = "var(--magic-glow)";
         }
     }
+
+    // 4. GitHub Auth Function
+    async function loginWithGithub() {
+        authMessage.innerText = "Summoning GitHub...";
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'github',
+        });
+        
+        if (error) {
+            authMessage.innerText = "Error: " + error.message;
+            authMessage.style.color = "#f96854";
+        }
+    }
 </script>
-
-
 </body>
 </html>
