@@ -526,11 +526,15 @@
         }
     }
 
-    // 4. GitHub Auth Function
+    // 4. GitHub Auth Function (Forced Redirect Fix)
     async function loginWithGithub() {
         authMessage.innerText = "Summoning GitHub...";
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'github',
+            options: {
+                // This forces it to return to exactly your Nord0DA folder
+                redirectTo: 'https://nord0main.github.io/Nord0DA/'
+            }
         });
         
         if (error) {
@@ -539,11 +543,14 @@
         }
     }
 
-    // 5. Google Auth Function
+    // 5. Google Auth Function (Forced Redirect Fix)
     async function loginWithGoogle() {
         authMessage.innerText = "Summoning Google...";
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
+            options: {
+                redirectTo: 'https://nord0main.github.io/Nord0DA/'
+            }
         });
         
         if (error) {
