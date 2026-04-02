@@ -153,6 +153,24 @@
         </div>
     </div>
 
+    <div id="engine-link-status" style="margin-top: 40px;">
+        <div class="profile-header" style="border-color: var(--text-dim); background: rgba(0,0,0,0.4);">
+            <div style="flex-grow: 1;">
+                <h3 style="margin: 0; color: var(--text-main);">The Engine Link</h3>
+                <p style="margin: 5px 0 0 0; color: var(--text-dim); font-size: 0.9rem;">
+                    Paste this key into your local Nord0 engine settings to bridge your realms. Do not share this key.
+                </p>
+                <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                    <input type="password" id="sync-key-display" readonly value="Loading..." style="width: 250px; color: var(--gold-accent); border-color: var(--text-dim); cursor: pointer;" onclick="toggleKeyVisibility()">
+                    <button class="btn btn-outline" style="padding: 10px 20px;" onclick="copySyncKey()">
+                        <i class="fas fa-copy"></i> Copy Key
+                    </button>
+                </div>
+            </div>
+            <i class="fas fa-network-wired fa-3x" style="color: var(--text-dim); opacity: 0.5;"></i>
+        </div>
+    </div>
+
     <div id="market-status" style="margin-top: 40px; display: none;">
         <div class="profile-header" style="border-color: var(--magic-glow); background: rgba(6, 182, 212, 0.05);">
             <div style="flex-grow: 1;">
@@ -304,6 +322,7 @@
             currentUser = session.user;
             showProfile();
             syncCharacters();
+            fetchSyncKey(); // Fetch the key upon login!
         } else {
             currentUser = null;
             hideProfile();
@@ -320,7 +339,6 @@
         const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
         document.getElementById('display-username').innerText = displayName;
 
-        // Forcefully redraw the UI based on strict Database State, overriding browser cache
         const nameContainer = document.getElementById('name-update-container');
         if (metadata.name_is_locked === true) {
             nameContainer.innerHTML = `<span style="color: var(--text-dim); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock" style="color: var(--gold-accent);"></i> Name Permanently Forged</span>`;
@@ -349,6 +367,50 @@
         navBtn.onclick = null; 
     }
 
+    // ENGINE LINK (SYNC KEY) FUNCTIONS
+    async function fetchSyncKey() {
+        const keyDisplay = document.getElementById('sync-key-display');
+        
+        const { data, error } = await supabaseClient
+            .from('player_profiles')
+            .select('sync_key')
+            .eq('user_id', currentUser.id)
+            .single();
+
+        if (data && data.sync_key) {
+            keyDisplay.value = data.sync_key;
+            keyDisplay.setAttribute('data-key', data.sync_key);
+            keyDisplay.type = 'password'; 
+        } else {
+            keyDisplay.value = "Forging Key...";
+            keyDisplay.type = 'text';
+        }
+    }
+
+    function toggleKeyVisibility() {
+        const keyDisplay = document.getElementById('sync-key-display');
+        if (keyDisplay.value === "Loading..." || keyDisplay.value === "Forging Key...") return;
+        
+        if (keyDisplay.type === "password") {
+            keyDisplay.type = "text";
+        } else {
+            keyDisplay.type = "password";
+        }
+    }
+
+    function copySyncKey() {
+        const keyDisplay = document.getElementById('sync-key-display');
+        const keyToCopy = keyDisplay.getAttribute('data-key');
+        
+        if (keyToCopy) {
+            navigator.clipboard.writeText(keyToCopy).then(() => {
+                alert("Sync Key copied to clipboard! Paste this into your local Nord0 engine.");
+            });
+        } else {
+            alert("Please lock in your Adventurer Name first to generate a Sync Key.");
+        }
+    }
+
     // SECURE NAME FORGER
     async function updateUsername() {
         const inputField = document.getElementById('username-input');
@@ -365,7 +427,6 @@
             return;
         }
 
-        // 'nord0' was removed so you can claim your rightful title!
         const bannedWords = ['admin', 'mod', 'system', 'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick'];
         const lowerName = newName.toLowerCase();
         if (bannedWords.some(word => lowerName.includes(word))) {
@@ -396,6 +457,7 @@
             document.getElementById('display-username').innerText = newName;
             document.getElementById('name-update-container').innerHTML = `<span style="color: var(--text-dim); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock" style="color: var(--gold-accent);"></i> Name Permanently Forged</span>`;
             alert("Your legend begins now, " + newName + ". This name is locked forever.");
+            fetchSyncKey(); // Fetch the new key now that a profile exists
         }
     }
 
@@ -450,6 +512,7 @@
         syncCharacters();
     }
 
+    // TOS MODAL FUNCTIONS
     function openTOS() { document.getElementById('tos-modal').style.display = 'flex'; }
     function closeTOS() { document.getElementById('tos-modal').style.display = 'none'; }
 
