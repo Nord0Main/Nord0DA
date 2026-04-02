@@ -138,11 +138,14 @@
             <div class="level-badge" id="active-char-level">Lv. 0</div>
         </div>
         <div style="flex-grow: 1;">
-            <h2 id="display-username" style="margin: 0;">Adventurer</h2>
-            <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-                <input type="text" id="username-input" placeholder="Update Public Name...">
-                <button class="btn btn-primary" style="padding: 10px 20px;" onclick="updateUsername()">Update</button>
+            <h2 id="display-username" style="margin: 0; letter-spacing: 1px;">Adventurer</h2>
+            
+            <div id="name-update-container" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                <input type="text" id="username-input" placeholder="Forge Public Name..." maxlength="20">
+                <button class="btn btn-primary" style="padding: 10px 20px;" onclick="updateUsername()">Lock Name</button>
+                <span style="font-size: 0.8rem; color: var(--danger); width: 100%;">*This action is permanent and cannot be undone.</span>
             </div>
+
         </div>
         <button class="btn btn-sync" onclick="syncCharacters()"><i class="fas fa-sync"></i> Sync Saves</button>
     </div>
@@ -253,68 +256,39 @@
 <script>
     const canvas = document.getElementById('magic-dust');
     const ctx = canvas.getContext('2d');
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     let particlesArray = [];
     const colors = ['rgba(6, 182, 212, ', 'rgba(212, 175, 55, ']; 
 
     class Particle {
         constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2.5 + 0.5;
-            this.speedX = Math.random() * 0.8 - 0.4;
-            this.speedY = Math.random() * -1 - 0.2;
-            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2.5 + 0.5; this.speedX = Math.random() * 0.8 - 0.4;
+            this.speedY = Math.random() * -1 - 0.2; this.color = colors[Math.floor(Math.random() * colors.length)];
             this.opacity = Math.random() * 0.5 + 0.1;
         }
         update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            
-            if (this.y < 0) {
-                this.y = canvas.height;
-                this.x = Math.random() * canvas.width;
-            }
-            if (this.x > canvas.width || this.x < 0) {
-                this.speedX = -this.speedX;
-            }
+            this.x += this.speedX; this.y += this.speedY;
+            if (this.y < 0) { this.y = canvas.height; this.x = Math.random() * canvas.width; }
+            if (this.x > canvas.width || this.x < 0) { this.speedX = -this.speedX; }
         }
         draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = this.color + this.opacity + ')';
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color + this.opacity + ')'; ctx.fill();
         }
     }
 
     function init() {
-        particlesArray = [];
-        let numParticles = window.innerWidth < 768 ? 50 : 120;
-        for (let i = 0; i < numParticles; i++) {
-            particlesArray.push(new Particle());
-        }
+        particlesArray = []; let numParticles = window.innerWidth < 768 ? 50 : 120;
+        for (let i = 0; i < numParticles; i++) particlesArray.push(new Particle());
     }
-
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < particlesArray.length; i++) {
-            particlesArray[i].update();
-            particlesArray[i].draw();
-        }
+        for (let i = 0; i < particlesArray.length; i++) { particlesArray[i].update(); particlesArray[i].draw(); }
         requestAnimationFrame(animate);
     }
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        init();
-    });
-
-    init();
-    animate();
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); });
+    init(); animate();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -345,12 +319,15 @@
         document.getElementById('auth').style.display = 'none';
         document.getElementById('profile-section').style.display = 'block';
         
-        // Graceful metadata fallback
         const metadata = currentUser.user_metadata || {};
         const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
         document.getElementById('display-username').innerText = displayName;
 
-        // Turn Login button into Logout
+        // Check if name is permanently locked
+        if (metadata.name_is_locked === true) {
+            document.getElementById('name-update-container').innerHTML = `<span style="color: var(--text-dim); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock" style="color: var(--gold-accent);"></i> Name Permanently Forged</span>`;
+        }
+
         const navBtn = document.getElementById('auth-nav-btn');
         navBtn.innerText = "Logout";
         navBtn.removeAttribute('href'); 
@@ -362,30 +339,62 @@
         document.getElementById('auth').style.display = 'block';
         document.getElementById('profile-section').style.display = 'none';
 
-        // Turn Nav button back to Login
         const navBtn = document.getElementById('auth-nav-btn');
         navBtn.innerText = "Login";
         navBtn.setAttribute('href', '#auth'); 
         navBtn.onclick = null; 
     }
 
-    // UPDATE USERNAME FUNCTION
+    // THE SECURE NAME FORGER (Unique, One-Time, Filtered)
     async function updateUsername() {
         const inputField = document.getElementById('username-input');
         const newName = inputField.value.trim();
         
         if (!newName) return; 
 
-        const { data, error } = await supabaseClient.auth.updateUser({
-            data: { full_name: newName }
+        // 1. Structural Checks
+        if (newName.length < 3 || newName.length > 20) {
+            alert("Names must be between 3 and 20 characters.");
+            return;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(newName)) {
+            alert("Names can only contain letters, numbers, and underscores.");
+            return;
+        }
+
+        // 2. Profanity & Impersonation Filter
+        const bannedWords = ['admin', 'nord0', 'mod', 'system', 'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick'];
+        const lowerName = newName.toLowerCase();
+        if (bannedWords.some(word => lowerName.includes(word))) {
+            alert("The Gods reject this name. Choose another.");
+            return;
+        }
+
+        // 3. Global Uniqueness Check (Insert to Supabase)
+        const { error: dbError } = await supabaseClient.from('player_profiles').insert([
+            { user_id: currentUser.id, username: newName }
+        ]);
+
+        if (dbError) {
+            if (dbError.code === '23505') { // Postgres code for UNIQUE violation
+                alert("That name is already claimed by another Adventurer.");
+            } else {
+                alert("Error consulting the registry: " + dbError.message);
+            }
+            return;
+        }
+
+        // 4. Lock it in Auth Metadata forever
+        const { error: authError } = await supabaseClient.auth.updateUser({
+            data: { full_name: newName, name_is_locked: true }
         });
 
-        if (error) {
-            alert("Failed to update name: " + error.message);
+        if (authError) {
+            alert("Name claimed, but profile sync failed: " + authError.message);
         } else {
             document.getElementById('display-username').innerText = newName;
-            inputField.value = ''; 
-            alert("The archives have recorded your new title, " + newName + ".");
+            document.getElementById('name-update-container').innerHTML = `<span style="color: var(--text-dim); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock" style="color: var(--gold-accent);"></i> Name Permanently Forged</span>`;
+            alert("Your legend begins now, " + newName + ". This name is locked forever.");
         }
     }
 
@@ -401,7 +410,7 @@
                 const card = document.createElement('div');
                 card.className = `char-card ${activeCharacter?.id === char.id ? 'active' : ''}`;
                 card.innerHTML = `
-                    <i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-user-shield'} fa-2x" style="color:${char.is_hardcore ? 'var(--danger)' : 'var(--gold-accent)'}; margin-bottom:10px;"></i>
+                    <i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-shield-alt'} fa-2x" style="color:${char.is_hardcore ? 'var(--danger)' : 'var(--gold-accent)'}; margin-bottom:10px;"></i>
                     <h4 style="margin:5px 0;">${char.name}</h4>
                     <p style="font-size:0.8rem; margin:0;">Level ${char.level} ${char.is_hardcore ? '(HC)' : ''}</p>
                 `;
@@ -459,11 +468,6 @@
             provider: 'github',
             options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' }
         });
-        
-        if (error) {
-            authMessage.innerText = "Error: " + error.message;
-            authMessage.style.color = "#f96854";
-        }
     }
 
     async function loginWithGoogle() {
@@ -472,11 +476,6 @@
             provider: 'google',
             options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' }
         });
-        
-        if (error) {
-            authMessage.innerText = "Error: " + error.message;
-            authMessage.style.color = "#f96854";
-        }
     }
 </script>
 </body>
