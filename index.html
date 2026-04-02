@@ -539,6 +539,16 @@
             options: { redirectTo: 'https://nord0main.github.io/Nord0DA/' }
         });
     }
+   // Listen to the Global Ledger for newly claimed items
+supabaseClient
+  .channel('global_claims')
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'global_items' }, payload => {
+    if (payload.new.owner_id !== null) {
+       // Trigger a massive CSS banner on the website!
+       alert(`ANNOUNCEMENT: A player has awakened ${payload.new.item_name}!`);
+    }
+  })
+  .subscribe();
 </script>
 </body>
 </html>
