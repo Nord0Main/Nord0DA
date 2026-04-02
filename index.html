@@ -140,11 +140,7 @@
         <div style="flex-grow: 1;">
             <h2 id="display-username" style="margin: 0; letter-spacing: 1px;">Adventurer</h2>
             
-            <div id="name-update-container" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                <input type="text" id="username-input" placeholder="Forge Public Name..." maxlength="20">
-                <button class="btn btn-primary" style="padding: 10px 20px;" onclick="updateUsername()">Lock Name</button>
-                <span style="font-size: 0.8rem; color: var(--danger); width: 100%;">*This action is permanent and cannot be undone.</span>
-            </div>
+            <div id="name-update-container" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;"></div>
 
         </div>
         <button class="btn btn-sync" onclick="syncCharacters()"><i class="fas fa-sync"></i> Sync Saves</button>
@@ -314,6 +310,7 @@
         }
     });
 
+    // STRICT DOM STATE MANAGEMENT
     function showProfile() {
         document.getElementById('hero-section').style.display = 'none';
         document.getElementById('auth').style.display = 'none';
@@ -323,9 +320,16 @@
         const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
         document.getElementById('display-username').innerText = displayName;
 
-        // Check if name is permanently locked
+        // Forcefully redraw the UI based on strict Database State, overriding browser cache
+        const nameContainer = document.getElementById('name-update-container');
         if (metadata.name_is_locked === true) {
-            document.getElementById('name-update-container').innerHTML = `<span style="color: var(--text-dim); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock" style="color: var(--gold-accent);"></i> Name Permanently Forged</span>`;
+            nameContainer.innerHTML = `<span style="color: var(--text-dim); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock" style="color: var(--gold-accent);"></i> Name Permanently Forged</span>`;
+        } else {
+            nameContainer.innerHTML = `
+                <input type="text" id="username-input" placeholder="Forge Public Name..." maxlength="20">
+                <button class="btn btn-primary" style="padding: 10px 20px;" onclick="updateUsername()">Lock Name</button>
+                <span style="font-size: 0.8rem; color: var(--danger); width: 100%;">*This action is permanent and cannot be undone.</span>
+            `;
         }
 
         const navBtn = document.getElementById('auth-nav-btn');
@@ -345,14 +349,13 @@
         navBtn.onclick = null; 
     }
 
-    // THE SECURE NAME FORGER (Unique, One-Time, Filtered)
+    // SECURE NAME FORGER
     async function updateUsername() {
         const inputField = document.getElementById('username-input');
         const newName = inputField.value.trim();
         
         if (!newName) return; 
 
-        // 1. Structural Checks
         if (newName.length < 3 || newName.length > 20) {
             alert("Names must be between 3 and 20 characters.");
             return;
@@ -362,21 +365,20 @@
             return;
         }
 
-        // 2. Profanity & Impersonation Filter
-        const bannedWords = ['admin', 'nord0', 'mod', 'system', 'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick'];
+        // 'nord0' was removed so you can claim your rightful title!
+        const bannedWords = ['admin', 'mod', 'system', 'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick'];
         const lowerName = newName.toLowerCase();
         if (bannedWords.some(word => lowerName.includes(word))) {
             alert("The Gods reject this name. Choose another.");
             return;
         }
 
-        // 3. Global Uniqueness Check (Insert to Supabase)
         const { error: dbError } = await supabaseClient.from('player_profiles').insert([
             { user_id: currentUser.id, username: newName }
         ]);
 
         if (dbError) {
-            if (dbError.code === '23505') { // Postgres code for UNIQUE violation
+            if (dbError.code === '23505') { 
                 alert("That name is already claimed by another Adventurer.");
             } else {
                 alert("Error consulting the registry: " + dbError.message);
@@ -384,7 +386,6 @@
             return;
         }
 
-        // 4. Lock it in Auth Metadata forever
         const { error: authError } = await supabaseClient.auth.updateUser({
             data: { full_name: newName, name_is_locked: true }
         });
@@ -449,7 +450,6 @@
         syncCharacters();
     }
 
-    // TOS MODAL FUNCTIONS
     function openTOS() { document.getElementById('tos-modal').style.display = 'flex'; }
     function closeTOS() { document.getElementById('tos-modal').style.display = 'none'; }
 
@@ -461,7 +461,6 @@
         }
     }
 
-    // AUTH FUNCTIONS (With Redirect Fix)
     async function loginWithGithub() {
         authMessage.innerText = "Summoning GitHub...";
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
