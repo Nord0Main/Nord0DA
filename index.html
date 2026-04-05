@@ -332,7 +332,8 @@
                 // In the future, you can fetch this from a 'purchases' table in Supabase!
                 const playerPayload = {
                     user: displayName,
-                    expansions: ['e1', 'e2'] 
+                    expansions: ['e1', 'e2'],
+                    session: session // <-- PASSING THE SECURE SESSION TOKEN TO THE LOCAL GAME!
                 };
 
                 // Send data securely back to the game window
