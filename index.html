@@ -320,6 +320,32 @@
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
             currentUser = session.user;
+            
+            // --- NEW: GAME CLIENT SYNC INTERCEPTOR ---
+            // If this page was opened as a popup by the game client, 
+            // send the token data back and immediately close the window!
+            if (window.opener) {
+                const metadata = currentUser.user_metadata || {};
+                const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
+                
+                // Package the payload. For Alpha, we automatically grant expansion variants e1 and e2.
+                // In the future, you can fetch this from a 'purchases' table in Supabase!
+                const playerPayload = {
+                    user: displayName,
+                    expansions: ['e1', 'e2'] 
+                };
+
+                // Send data securely back to the game window
+                window.opener.postMessage({ 
+                    type: 'NORD_AUTH_SUCCESS', 
+                    payload: playerPayload 
+                }, '*');
+                
+                window.close(); // Close the popup so they can return to the game
+                return; // Stop running the rest of the website code for this popup
+            }
+            // -----------------------------------------
+
             showProfile();
             syncCharacters();
             fetchSyncKey(); // Fetch the key upon login!
