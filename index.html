@@ -469,11 +469,10 @@
             return;
         }
 
-        // Redirect to Ngrok and pass the session tokens securely in the URL Hash
-        // We use # instead of ? so the tokens aren't accidentally logged by server software
         const currentSession = (await supabaseClient.auth.getSession()).data.session;
         if(currentSession) {
-            const guestTokens = `access=${currentSession.access_token}&refresh=${currentSession.refresh_token}`;
+            // UPDATED: Now passing the &realm= code so the game client knows where to connect!
+            const guestTokens = `access=${currentSession.access_token}&refresh=${currentSession.refresh_token}&realm=${codeInput}`;
             window.location.href = `${data.server_url}/#guest=true&${guestTokens}`;
         } else {
             errorMsg.innerText = "Authentication error. Please log in again.";
