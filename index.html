@@ -146,6 +146,16 @@
         <button class="btn btn-sync" onclick="syncCharacters()"><i class="fas fa-sync"></i> Sync Saves</button>
     </div>
 
+    <div class="profile-header" style="border-color: var(--magic-glow); background: rgba(6, 182, 212, 0.05); flex-direction: column; align-items: flex-start; margin-top: 40px;">
+        <h3 style="margin: 0; color: var(--magic-glow); font-size: 1.5rem;">Join a Friend's Realm</h3>
+        <p style="margin: 5px 0 15px 0; font-size: 0.9rem; color: var(--text-dim);">Enter an 8-character Invite Code to warp directly into their active campaign as a guest.</p>
+        <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
+            <input type="text" id="realm-join-code" placeholder="XXXX-XXXX" maxlength="9" style="flex-grow: 1; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;">
+            <button class="btn btn-primary" onclick="joinRealm()" id="join-realm-btn">Warp to Host</button>
+        </div>
+        <p id="join-error" style="color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; font-weight: bold;"></p>
+    </div>
+
     <div id="character-management">
         <h2 style="text-align: left; font-size: 2rem;">Your Character Vault</h2>
         <div class="char-grid" id="char-list">
@@ -316,24 +326,21 @@
     let activeCharacter = null;
     const authMessage = document.getElementById('auth-message');
 
-    // AUTH STATE LISTENER
-    supabaseClient.auth.onAuthStateChange((event, session) => {
+    // AUTH STATE LISTENER (Updated to Async to fetch Forged Name)
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session) {
             currentUser = session.user;
             
-            // --- NEW: GAME CLIENT SYNC INTERCEPTOR ---
-            // If this page was opened as a popup by the game client, 
-            // send the token data back and immediately close the window!
+            // --- UPDATED: GAME CLIENT SYNC INTERCEPTOR ---
             if (window.opener) {
-                const metadata = currentUser.user_metadata || {};
-                const displayName = metadata.full_name || metadata.user_name || currentUser.email.split('@')[0];
+                // Fetch their actual Forged Name from the database!
+                const { data } = await supabaseClient.from('player_profiles').select('username').eq('user_id', currentUser.id).single();
+                const forgedName = data?.username || currentUser.user_metadata?.full_name || currentUser.user_metadata?.user_name || currentUser.email.split('@')[0] || 'Adventurer';
                 
-                // Package the payload. For Alpha, we automatically grant expansion variants e1 and e2.
-                // In the future, you can fetch this from a 'purchases' table in Supabase!
                 const playerPayload = {
-                    user: displayName,
+                    user: forgedName,
                     expansions: ['e1', 'e2'],
-                    session: session // <-- PASSING THE SECURE SESSION TOKEN TO THE LOCAL GAME!
+                    session: session // PASSING THE SECURE SESSION TOKEN TO THE LOCAL GAME
                 };
 
                 // Send data securely back to the game window
@@ -355,6 +362,46 @@
             hideProfile();
         }
     });
+
+    // --- NEW: GUEST REDIRECT LOGIC ---
+    async function joinRealm() {
+        const codeInput = document.getElementById('realm-join-code').value.trim().toUpperCase();
+        const errorMsg = document.getElementById('join-error');
+        const connectBtn = document.getElementById('join-realm-btn');
+        
+        if (!codeInput) {
+            errorMsg.innerText = "The Void requires an Invite Code.";
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        errorMsg.style.display = 'none';
+        connectBtn.innerText = "Locating Realm...";
+        connectBtn.style.opacity = "0.7";
+
+        const { data, error } = await supabaseClient.from('realms').select('server_url').eq('realm_key', codeInput).single();
+
+        if (error || !data) {
+            errorMsg.innerText = "Realm not found or closed. Ensure the Host has opened the gate.";
+            errorMsg.style.display = 'block';
+            connectBtn.innerText = "Warp to Host";
+            connectBtn.style.opacity = "1";
+            return;
+        }
+
+        // Redirect to Ngrok and pass the session tokens securely in the URL Hash
+        // We use # instead of ? so the tokens aren't accidentally logged by server software
+        const currentSession = (await supabaseClient.auth.getSession()).data.session;
+        if(currentSession) {
+            const guestTokens = `access=${currentSession.access_token}&refresh=${currentSession.refresh_token}`;
+            window.location.href = `${data.server_url}/#guest=true&${guestTokens}`;
+        } else {
+            errorMsg.innerText = "Authentication error. Please log in again.";
+            errorMsg.style.display = 'block';
+            connectBtn.innerText = "Warp to Host";
+            connectBtn.style.opacity = "1";
+        }
+    }
 
     // STRICT DOM STATE MANAGEMENT
     function showProfile() {
