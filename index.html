@@ -78,12 +78,13 @@
             color: #000; font-weight: bold; padding: 4px 10px; border-radius: 10px; font-size: 0.9rem; z-index: 2;
         }
 
-        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; margin-top: 20px; }
         .char-card {
             background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; cursor: pointer;
-            border: 1px solid transparent; transition: 0.3s; text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.2); transition: 0.3s; text-align: center;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
-        .char-card:hover { border-color: var(--magic-glow); transform: translateY(-5px); }
+        .char-card:hover { border-color: var(--magic-glow); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .char-card.active { border-color: var(--gold-accent); background: rgba(212, 175, 55, 0.1); }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
@@ -168,7 +169,6 @@
             <div id="name-update-container" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;"></div>
 
         </div>
-        <button class="btn btn-sync" onclick="syncCharacters()"><i class="fas fa-sync"></i> Sync Saves</button>
     </div>
 
     <div class="profile-header" style="border-color: var(--magic-glow); background: rgba(6, 182, 212, 0.05); flex-direction: column; align-items: flex-start; margin-top: 40px;">
@@ -184,25 +184,7 @@
     <div id="character-management">
         <h2 style="text-align: left; font-size: 2rem;">Your Character Vault</h2>
         <div class="char-grid" id="char-list">
-            <p>No characters found. Ensure your local engine is synced!</p>
-        </div>
-    </div>
-
-    <div id="engine-link-status" style="margin-top: 40px;">
-        <div class="profile-header" style="border-color: var(--text-dim); background: rgba(0,0,0,0.4);">
-            <div style="flex-grow: 1;">
-                <h3 style="margin: 0; color: var(--text-main);">The Engine Link</h3>
-                <p style="margin: 5px 0 0 0; color: var(--text-dim); font-size: 0.9rem;">
-                    Paste this key into your local Nord0 engine settings to bridge your realms. Do not share this key.
-                </p>
-                <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
-                    <input type="password" id="sync-key-display" readonly value="Loading..." style="width: 250px; color: var(--gold-accent); border-color: var(--text-dim); cursor: pointer;" onclick="toggleKeyVisibility()">
-                    <button class="btn btn-outline" style="padding: 10px 20px;" onclick="copySyncKey()">
-                        <i class="fas fa-copy"></i> Copy Key
-                    </button>
-                </div>
-            </div>
-            <i class="fas fa-network-wired fa-3x" style="color: var(--text-dim); opacity: 0.5;"></i>
+            <p style="color: var(--text-dim);">No characters found. Forge a hero to begin your legend!</p>
         </div>
     </div>
 
@@ -404,7 +386,6 @@
 
             showProfile();
             syncCharacters();
-            fetchSyncKey(); // Fetch the key upon login!
         } else {
             currentUser = null;
             hideProfile();
@@ -547,50 +528,6 @@
         navBtn.onclick = null; 
     }
 
-    // ENGINE LINK (SYNC KEY) FUNCTIONS
-    async function fetchSyncKey() {
-        const keyDisplay = document.getElementById('sync-key-display');
-        
-        const { data, error } = await supabaseClient
-            .from('player_profiles')
-            .select('sync_key')
-            .eq('user_id', currentUser.id)
-            .single();
-
-        if (data && data.sync_key) {
-            keyDisplay.value = data.sync_key;
-            keyDisplay.setAttribute('data-key', data.sync_key);
-            keyDisplay.type = 'password'; 
-        } else {
-            keyDisplay.value = "Forging Key...";
-            keyDisplay.type = 'text';
-        }
-    }
-
-    function toggleKeyVisibility() {
-        const keyDisplay = document.getElementById('sync-key-display');
-        if (keyDisplay.value === "Loading..." || keyDisplay.value === "Forging Key...") return;
-        
-        if (keyDisplay.type === "password") {
-            keyDisplay.type = "text";
-        } else {
-            keyDisplay.type = "password";
-        }
-    }
-
-    function copySyncKey() {
-        const keyDisplay = document.getElementById('sync-key-display');
-        const keyToCopy = keyDisplay.getAttribute('data-key');
-        
-        if (keyToCopy) {
-            navigator.clipboard.writeText(keyToCopy).then(() => {
-                alert("Sync Key copied to clipboard! Paste this into your local Nord0 engine.");
-            });
-        } else {
-            alert("Please lock in your Adventurer Name first to generate a Sync Key.");
-        }
-    }
-
     // SECURE NAME FORGER
     async function updateUsername() {
         const inputField = document.getElementById('username-input');
@@ -637,7 +574,6 @@
             document.getElementById('display-username').innerText = newName;
             document.getElementById('name-update-container').innerHTML = `<span style="color: var(--text-dim); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock" style="color: var(--gold-accent);"></i> Name Permanently Forged</span>`;
             alert("Your legend begins now, " + newName + ". This name is locked forever.");
-            fetchSyncKey(); // Fetch the new key now that a profile exists
         }
     }
 
@@ -652,22 +588,46 @@
             data.forEach(char => {
                 const card = document.createElement('div');
                 card.className = `char-card ${activeCharacter?.id === char.id ? 'active' : ''}`;
+                
+                // Construct the rich card UI
                 card.innerHTML = `
-                    <i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-shield-alt'} fa-2x" style="color:${char.is_hardcore ? 'var(--danger)' : 'var(--gold-accent)'}; margin-bottom:10px;"></i>
-                    <h4 style="margin:5px 0;">${char.name}</h4>
-                    <p style="font-size:0.8rem; margin:0;">Level ${char.level} ${char.is_hardcore ? '(HC)' : ''}</p>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 10px; margin-bottom: 10px;">
+                            <h4 style="margin:0; font-size: 1.1rem; color: var(--text-main); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${char.name}</h4>
+                            ${char.is_hardcore ? '<i class="fas fa-skull" style="color: var(--danger); flex-shrink: 0;" title="Hardcore"></i>' : ''}
+                        </div>
+                        
+                        <p style="font-size:0.85rem; color: var(--text-dim); margin:0 0 10px 0; font-weight: bold; text-align: left;">
+                            Level ${char.level} ${char.class || 'Adventurer'}
+                        </p>
+                        
+                        <div style="display: flex; justify-content: space-around; font-size: 0.8rem; color: #aaa; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px; margin-bottom: 15px;">
+                            <span>STR: ${char.attributes?.str || '--'}</span>
+                            <span>DEX: ${char.attributes?.dex || '--'}</span>
+                            <span>CON: ${char.attributes?.con || '--'}</span>
+                        </div>
+                    </div>
+
+                    <div style="border: 1px dashed rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.2);">
+                        <p style="font-size: 0.7rem; color: var(--gold-accent); margin: 0 0 5px 0; text-transform: uppercase;">Selected Achievement</p>
+                        <div style="width: 40px; height: 40px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); cursor: pointer;" title="Equip an achievement badge">
+                            <i class="fas fa-gem" style="color: rgba(255,255,255,0.1);"></i>
+                        </div>
+                    </div>
                 `;
                 card.onclick = () => selectCharacter(char);
                 list.appendChild(card);
             });
         } else {
-            list.innerHTML = "<p style='grid-column: 1/-1;'>Vault empty. Bridge your local engine to begin.</p>";
+            list.innerHTML = "<p style='grid-column: 1/-1; color: var(--text-dim);'>No characters found. Forge a hero to begin your legend!</p>";
         }
     }
 
     // CHARACTER SELECTION FUNCTION
     function selectCharacter(char) {
         activeCharacter = char;
+        
+        // Ensure visual update on profile card matches selection
         document.getElementById('active-char-pic').innerHTML = `<i class="fas ${char.is_hardcore ? 'fa-skull' : 'fa-user-shield'} fa-3x"></i>`;
         document.getElementById('active-char-level').innerText = `Lv. ${char.level}`;
         
